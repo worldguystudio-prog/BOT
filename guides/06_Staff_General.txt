@@ -1,0 +1,137 @@
+===============================================================================
+              ORGVNUM — STAFF (GENERAL) GUIDE
+                       (Permission Level 30)
+===============================================================================
+
+You're on the staff team. This guide covers the everyday tools every
+staff member uses — tickets, shifts, roleplay basics, and the utility
+commands you'll reach for constantly.
+
+If you have a specialized role (moderator, recruiter, trainer), read that
+guide too. This one's the foundation.
+
+
+TICKETS (your main job)
+───────────────────────
+
+Most staff work happens in tickets. Members open tickets to get help,
+appeal warnings, report users, ask questions, etc.
+
+POSTING THE PANEL (admin does this once):
+  /ticket-panel channel:#support
+
+When a member opens a ticket:
+  • A private channel is created under the ticket category
+  • You (staff) get access automatically
+  • The member gets a welcome embed with Claim / Close / Lock / Rename buttons
+
+MANAGING TICKETS:
+  /claim                       (you take ownership of the ticket)
+  /unclaim                     (release your claim)
+  /adduser user:@someone       (add someone to this ticket)
+  /removeuser user:@someone    (remove someone from this ticket)
+  /rename name:new-name        (rename the ticket channel)
+  /lockticket                  (stop the requester from sending messages)
+  /unlockticket                (let them send messages again)
+  /closeticket                 (generate transcript, post to transcript
+                                channel, delete the ticket channel)
+
+The buttons on the ticket message do the same things as the commands.
+
+Read 07_Tickets_and_Support.txt for the full ticket guide.
+
+
+SHIFTS (track your activity)
+────────────────────────────
+
+When you're working — handling tickets, running RP, helping members —
+you should be on the clock. It feeds into the activity leaderboard.
+
+  /shift start department:Support
+  /shift end
+  /shift status                  (see how long you've been on shift)
+  /shift leaderboard             (see who's been putting in the most time)
+
+Read 09_Shifts_and_Activity.txt for details.
+
+
+ROLEPLAY BASICS
+───────────────
+
+Even if you're not in the roleplay team, you'll use some RP commands:
+
+  /profile                       (view your personnel file)
+  /profile user:@someone         (view someone else's)
+  /status set:Active             (set your status: Active/On Leave/LOA/Inactive)
+
+If you're assigned to a department, your callsign and department show on
+your profile. Read 08_Roleplay_Personnel.txt if you handle roleplay stuff.
+
+
+UTILITIES (the everyday tools)
+──────────────────────────────
+
+  /ping                          (is the bot alive? shows latency)
+  /userinfo user:@someone        (member info — join date, roles, etc.)
+  /serverinfo                    (server stats)
+  /roleinfo role:@Staff          (role details)
+  /avatar user:@someone          (view their avatar)
+  /banner user:@someone          (view their banner)
+  /botinfo                       (bot version, uptime, server count)
+  /help                          (interactive command browser)
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ Moderation commands (warn/mute/kick/ban) — that's moderators
+  ❌ Application decisions (accept/deny) — that's recruiters
+  ❌ Creating training events — that's trainers
+  ❌ /dashboard, /config — admin only
+  ❌ /announcement, /dispatch, /alert — Directorate and above
+
+  You CAN: work tickets, run shifts, view profiles, use utilities.
+  That's the bulk of day-to-day staff work.
+
+
+TIPS:
+────
+
+  • Claim tickets before working them. It tells other staff "I've got
+    this one" so you don't trip over each other.
+
+  • Use /closeticket (or the Close button) when you're done. Don't
+    leave tickets open — they clutter the category and confuse members.
+
+  • Start a shift when you come online, end it when you leave. It's
+    how we track who's active.
+
+  • If a ticket is beyond your scope, ask in your staff channel. Don't
+    guess — escalate.
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /claim /closeticket            (ticket workflow)
+  /shift start /shift end       (clocking in and out)
+  /profile                       (who am I looking at?)
+  /ping                          (sanity check)
+  /userinfo user:@someone        (member lookup)
+
+Memorize those. They cover most of your day.
+
+
+YOUR DAILY ROUTINE:
+──────────────────
+
+  1. Come online.
+  2. /shift start department:Support
+  3. Check the ticket category for open tickets.
+  4. Claim one, handle it, close it.
+  5. Repeat.
+  6. /shift end before you leave.
+
+Simple. Effective. Keep the queue clear.
+
+===============================================================================

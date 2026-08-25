@@ -1,0 +1,132 @@
+===============================================================================
+              ORGVNUM — TRAINER GUIDE
+                       (Permission Level 40)
+===============================================================================
+
+You're on the training team. Your job is creating and running training
+sessions, operations, patrols, ceremonies, interviews, and recruitment
+events — and tracking who showed up. This guide covers the training system.
+
+
+THE TRAINING FLOW
+────────────────
+
+1. You create an event with /training create.
+2. You mark it IN PROGRESS when it starts.
+3. You mark attendance as people show up (or after the event).
+4. You mark it COMPLETED when it's done.
+5. Attendance is recorded permanently.
+
+
+CREATING EVENTS
+───────────────
+
+  /training create name:Basic Training type:Training date:"tomorrow 8pm"
+  /training create name:Operation Blackout type:Operation date:"Friday 9pm"
+  /training create name:Patrol Sector 4 type:Patrol
+  /training create name:Recruitment Drive type:Recruitment Event
+
+Event types you can pick from:
+  Training, Operation, Patrol, Ceremony, Interview, Recruitment Event
+
+The date field is free text — just describe when it happens. The bot
+doesn't auto-schedule Discord events; it just records the info.
+
+When you create an event, you get an Event ID (like #1, #2, #3...). Note
+it — you'll use it for the other commands.
+
+
+RUNNING THE EVENT
+─────────────────
+
+  /training start id:1     (mark as IN PROGRESS)
+  /training end id:1       (mark as COMPLETED)
+  /training cancel id:1    (mark as CANCELLED — use if it didn't happen)
+
+
+TRACKING ATTENDANCE
+───────────────────
+
+  /training roster id:1                     (view the roster)
+  /training roster id:1 user:@someone       (mark someone as attended)
+
+The roster shows everyone who's been marked as attended for that event.
+You can mark attendance one person at a time, or do it all at once after
+the event ends.
+
+Tip: If you forget to mark attendance, you can do it any time after the
+event ends — the roster stays open.
+
+
+VIEWING EVENTS
+──────────────
+
+There's no list command yet (coming soon), but you can use the IDs. Event
+IDs are sequential (1, 2, 3, ...), so if you've created 5 events, they're
+#1 through #5.
+
+
+AWARDING POINTS (if economy is enabled)
+──────────────────────────────────────
+
+You can award points to attendees as a reward for showing up:
+
+  /points user:@someone amount:10 reason:Attended Basic Training #1
+
+If the economy system is OFF, this command still works (it just stores
+the points — they don't do anything until an admin enables the economy).
+
+Read 10_Economy_and_Points.txt for more on the points system.
+
+
+SHIFT TRACKING (optional but recommended)
+────────────────────────────────────────
+
+When you're running a training, you're on the clock. Track it:
+
+  /shift start department:Training
+  /shift end
+
+This records your time, which feeds into the shift leaderboard. Read
+09_Shifts_and_Activity.txt for details.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ /dashboard, /config — admin only
+  ❌ Moderation commands — that's moderators
+  ❌ /announcement — Directorate and above
+
+  You CAN create events, track attendance, and award points. You also
+  have all the general staff powers (tickets, shifts, roleplay basics).
+
+
+TIPS:
+────
+
+  • Create events ahead of time so people can see them coming. Use a
+    clear name and date.
+
+  • Mark attendance as soon as the event ends, while it's fresh.
+
+  • If you cancel an event, use /training cancel — don't just leave it
+    in SCHEDULED forever. A clean record helps everyone.
+
+  • Award points consistently — if you always give 10 for attending
+    training, stick with that. Don't play favorites.
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /training create name:... type:... date:...
+  /training start id:1
+  /training roster id:1 user:@someone
+  /training end id:1
+  /points user:@someone amount:10 reason:...
+
+That's your training workflow. Create it, start it, mark attendance,
+end it, award points. Done.
+
+===============================================================================

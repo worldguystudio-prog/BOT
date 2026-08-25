@@ -1,0 +1,183 @@
+===============================================================================
+              ORGVNUM — MODERATOR GUIDE
+                       (Permission Level 60)
+===============================================================================
+
+You're on the mod team. Your job is keeping the server orderly — warning
+people who break rules, removing troublemakers, and keeping a clean record
+of every action you take. This guide covers every moderation command.
+
+
+WARNINGS (the bread and butter)
+───────────────────────────────
+
+Warnings are a counter/history system. They do NOT auto-punish. You decide
+what happens to repeat offenders.
+
+  /warn user:@someone reason:Disruptive behavior
+  /unwarn warning_id:WARN-000123
+  /warnings user:@someone
+  /clearwarnings user:@someone     (Administrator only)
+
+When you warn someone:
+  1. The warning is saved permanently in the database.
+  2. The user gets a DM with the reason, who issued it, and how to appeal.
+  3. An audit log is posted to the moderation log channel.
+
+To remove a single warning, use /unwarn with the warning ID (you can find
+it via /warnings). To clear ALL of someone's warnings, /clearwarnings
+(that's Administrator only — use it sparingly).
+
+Tip: always include a clear reason. The reason goes in the DM and the log.
+"Disruptive behavior in #general, kept spamming after warning" beats "bad".
+
+
+MUTES & TIMEOUTS
+───────────────
+
+  /mute user:@someone reason:Spamming duration:10m
+  /unmute user:@someone
+  /timeout user:@someone duration:30m reason:Disruptive
+  /untimeout user:@someone
+
+/mute uses a "Muted" role (the admin sets this via /config roles muted).
+/timeout uses Discord's native timeout (no role needed, max 28 days).
+
+If /mute fails with "No muted role configured," tell an admin — they
+need to set it. In the meantime, use /timeout instead.
+
+
+KICK / BAN / SOFTBAN
+───────────────────
+
+  /kick user:@someone reason:Rule violation
+  /ban user:<id or @mention> reason:Toxic delete_days:7
+  /unban user:<id> reason:Appeal approved
+  /softban user:@someone reason:Cleanup
+
+/softban bans then immediately unbans. It clears the user's recent messages
+without permanently removing them from the server. Use it for message
+cleanup when you don't want a full ban.
+
+/ban can take a user ID (not just a mention) — useful for banning someone
+who already left the server. The delete_days option clears that many days
+of their messages (0-7).
+
+
+PURGE (bulk delete messages)
+────────────────────────────
+
+  /purge amount:50
+  /purge amount:50 user:@spammer
+
+Deletes the most recent N messages. If you specify a user, only deletes
+their messages. Discord only allows deleting messages newer than 14 days,
+so old messages won't be included.
+
+
+SLOWMODE
+───────
+
+  /slowmode seconds:30
+
+Sets a slowmode delay on the current channel. 0 to disable.
+
+
+LOCKS (channel-level)
+─────────────────────
+
+  /lock         — members can't send messages in this channel
+  /unlock       — restores it
+
+For server-wide emergencies (raids, big incidents), /lockdown locks EVERY
+channel — but that's Administrator only. You do per-channel locks.
+
+
+NICKNAMES
+────────
+
+  /nickname user:@someone nickname:NewNick
+
+
+CASE LOOKUP
+──────────
+
+Every moderation action gets a unique case number (Case #000001, #000002,
+etc.). Look one up with:
+
+  /case 000123
+
+Shows the type, who did it, who it was done to, the reason, and when.
+Use this when someone appeals a warning or asks "what happened to me."
+
+
+AUTOMOD
+───────
+
+Automod runs silently in the background. It's OFF by default — an admin
+has to turn it on. You don't configure it, but you'll see its actions in
+the mod log channel. If automod times someone out and you disagree, you
+can /untimeout them.
+
+If automod is being too aggressive, tell an admin to tweak the settings
+(/automod settings module:Spam enabled:false).
+
+
+HOW TO HANDLE COMMON SITUATIONS
+──────────────────────────────
+
+Someone's spamming?
+  → /timeout user:@spammer duration:10m reason:Spamming
+  → /purge amount:20 user:@spammer
+
+Someone's being toxic but it's a first offense?
+  → /warn user:@someone reason:Toxic behavior in #general
+
+Someone's a repeat offender who won't stop?
+  → /timeout user:@someone duration:2h reason:Repeated rule violations
+  → If it continues, /kick or /ban with a clear reason.
+
+Someone posted something illegal or extremely harmful?
+  → /ban user:@someone reason:<clear reason> delete_days:7
+  → /purge amount:50 user:@someone (clean up their messages)
+
+Channel is getting raided?
+  → /lock the affected channel(s)
+  → Tell an admin — they may need to /lockdown
+
+Someone appeals a warning and you agree?
+  → /unwarn warning_id:WARN-000123
+
+
+THE GOLDEN RULES
+───────────────
+
+  1. ALWAYS include a clear reason. It goes to the user AND the log.
+  2. Escalate gradually: warn → timeout → kick → ban.
+  3. Every action is logged with your name. Be deliberate.
+  4. If you're not sure, ask in your staff channel before acting.
+  5. Don't moderate in anger. Step away if you need to.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ /dashboard, /config — admin only
+  ❌ /lockdown /unlockdown — admin only
+  ❌ /clearwarnings — admin only
+  ❌ /automod enable/disable — admin only
+  ❌ /announcement — Directorate and above
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /warn user:@someone reason:...
+  /warnings user:@someone
+  /timeout user:@someone duration:30m reason:...
+  /purge amount:50
+  /case 000123
+
+Memorize those five. They cover 90% of what you'll do.
+
+===============================================================================

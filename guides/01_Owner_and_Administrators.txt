@@ -1,0 +1,158 @@
+===============================================================================
+              ORGVNUM — OWNER & ADMINISTRATOR GUIDE
+                     (Permission Level 90–100)
+===============================================================================
+
+If you're reading this, you own the server or you're a full administrator.
+This guide covers the high-level tools only you can use. You also have
+access to every command in every other guide — this one's just the
+owner/admin-specific stuff.
+
+
+WHAT YOU CAN DO THAT OTHERS CAN'T:
+──────────────────────────────────
+
+THE DASHBOARD (/dashboard)
+  Your control room. Opens an interactive panel where you can configure
+  every channel, role, and system setting by clicking through menus.
+  Nobody below Administrator can use this.
+
+  → Welcome System      Set welcome channel, default role, welcome message
+  → Logging Channels    Where every type of log goes
+  → Tickets             Category, panel channel, transcripts, staff role
+  → Applications        Review channel, recruiter role
+  → Recruitment         Recruitment & waitlist channels
+  → Roleplay            Dispatch, scene, log channels
+  → Economy             Enable/disable the points system
+  → Shifts              Shift log channel
+  → Training            Training & log channels
+  → Staff Roles         Moderator, Directorate, Trainer, Muted roles
+  → Departments         Add/remove roleplay departments
+  → Permissions         Map Discord roles to permission levels
+
+  Just click through. Settings save instantly.
+
+
+/CONFIG (alternative to the dashboard)
+  Same settings as the dashboard, but via typed subcommands. Examples:
+
+    /config welcome channel #welcome
+    /config logs moderation #mod-log
+    /config tickets category #support
+    /config tickets staff @Staff
+    /config roles muted @Muted
+    /config departments add "Operations" @Operations
+    /config view                              (see everything at once)
+    /config reset setting:log_channel_id      (clear a setting)
+
+
+/CONFIG PERMISSIONS
+  Map Discord roles to ORGVNUM permission levels. This is how the bot knows
+  who's a moderator, who's a recruiter, etc.
+
+    /config permissions role:@Moderator level:60
+    /config permissions role:@Recruiter level:50
+    /config permissions role:@Director level:80
+    /config permissions role:@Admin level:90
+    /config permissions role:@Staff level:30
+
+  Levels (higher = more power):
+    100 Owner            — you
+     90 Administrator    — full access
+     80 Directorate      — senior command
+     70 Department       — department heads
+     60 Moderator        — mod team
+     50 Recruiter        — recruitment team
+     40 Trainer          — training staff
+     30 Staff            — general staff
+     10 Member           — regular members
+
+
+/SAY — make the bot talk
+  Posts a message as the bot in any channel. Two modes:
+
+    /say channel:#general message:Welcome to ORGVNUM!
+    /say channel:#announcements embed_title:Update embed_description:Details here
+
+
+/TICKET-PANEL — post the support panel
+  Posts the ticket panel (with the type dropdown) in a channel. Members
+  click it to open support tickets.
+
+    /ticket-panel channel:#support
+
+
+/APPLICATION-PANEL — post the application buttons
+  Posts a panel with buttons users click to apply.
+
+    /application-panel channel:#applications
+
+
+/LOCKDOWN & /UNLOCKDOWN — emergency only
+  Locks (or unlocks) every text channel in the server. Use during raids
+  or emergencies. Don't use casually.
+
+    /lockdown
+    /unlockdown
+
+
+/CLEARWARNINGS — wipe someone's record
+  Clears ALL active warnings for a member. Use carefully.
+
+    /clearwarnings user:@someone
+
+
+OWNER-ONLY COMMANDS (just you):
+──────────────────────────────
+
+  /reload     — reload commands without restarting the bot
+  /sync       — re-register slash commands + clear duplicates
+  /database stats     — row counts for every table
+  /database backup    — create a timestamped .db backup
+  /database vacuum    — optimize the database
+  /debug      — diagnostic info (uptime, memory, log types)
+
+
+WHAT YOU CAN'T DO (by design):
+────────────────────────────
+
+  Nothing. You're the owner. You can do everything.
+
+  But: don't give out Administrator (90) casually. Reserve it for 1-2
+  trusted people. Most staff should be Moderator (60) or below.
+
+
+COMMON GOTCHAS:
+──────────────
+
+• If slash commands aren't showing, run /sync. If that doesn't work,
+  fully close and reopen Discord.
+
+• If the bot can't moderate someone, its role needs to be ABOVE that
+  person's role in Server Settings → Roles. Drag the bot's role up.
+
+• If logs aren't appearing, you haven't set the log channel yet.
+  /dashboard → Logging Channels → Main Moderation Log → pick a channel.
+
+• Railway (or your host) resets the filesystem on redeploy unless you
+  add a persistent volume mounted at /app/data. Without it, your
+  database (warnings, tickets, applications) wipes on every deploy.
+
+
+QUICK STARTUP CHECKLIST (run this once):
+──────────────────────────────────────
+
+  /dashboard → Permissions → map your roles to levels
+  /dashboard → Logging Channels → set the main mod log
+  /dashboard → Welcome → set welcome channel + default role
+  /dashboard → Tickets → set category, staff role, panel channel
+  /dashboard → Applications → set review channel + recruiter role
+  /dashboard → Staff Roles → set moderator, muted roles
+
+  /ticket-panel channel:#support
+  /application-panel channel:#applications
+
+That's it. The bot's fully configured. Hand out the role-specific guides
+to your staff and you're running.
+
+===============================================================================

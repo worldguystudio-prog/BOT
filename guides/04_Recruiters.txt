@@ -1,0 +1,151 @@
+===============================================================================
+              ORGVNUM — RECRUITER GUIDE
+                       (Permission Level 50)
+===============================================================================
+
+You're on the recruitment team. Your job is handling applications, running
+the placement waitlist, and bringing new members into ORGVNUM. This guide
+covers everything you need.
+
+
+THE APPLICATION FLOW (how it works end-to-end)
+──────────────────────────────────────────────
+
+1. An admin posts the application panel in a channel:
+     /application-panel channel:#applications
+
+2. Members see buttons: [Recruitment] [Placement] [Staff] [Leadership]
+
+3. They click a button → a form pops up (Discord username, age, timezone,
+   experience, why ORGVNUM).
+
+4. When they submit:
+   • Their application is saved to the database with a unique ID (#0001, #0002…)
+   • A review panel is posted to your configured application review channel
+   • The applicant gets a hidden confirmation with their application ID
+   • You (the recruiter) see the review panel in your review channel
+
+5. You review it and click a button or use a command to decide.
+
+
+VIEWING APPLICATIONS
+────────────────────
+
+  /applications                    — list recent applications
+  /applications status:PENDING     — filter by status
+  /application id:0042             — view one + see the review buttons
+
+Statuses:
+  PENDING → UNDER REVIEW → INTERVIEW → ACCEPTED / DENIED / WAITLISTED / CLOSED
+
+
+MAKING DECISIONS
+────────────────
+
+You can use either the buttons on the review panel or the commands:
+
+  /accept id:0042 notes:Great fit, welcome to the team
+  /deny id:0042 notes:Not enough experience, reapply in 30 days
+  /interview id:0042                  (moves to INTERVIEW status)
+  /waitlist ...                       (moves to WAITLISTED — see below)
+
+When you decide, the applicant gets a DM automatically with the new status
+and your name. You don't need to message them separately.
+
+The review panel buttons do the same thing as the commands:
+  [ Accept ] [ Deny ] [ Waitlist ] [ Interview ] [ Request Info ]
+
+
+THE PLACEMENT WAITLIST
+──────────────────────
+
+A separate queue for placement applications. Members submit:
+
+  Roblox username, Discord username, age, timezone, activity level,
+  previous experience, why they want to join, desired role, skills,
+  availability.
+
+TO JOIN (members do this themselves):
+  /waitlist add
+  (Opens a form — fills it out, gets an entry ID like #0005)
+
+STAFF MANAGEMENT:
+  /waitlist view                        — list all entries
+  /waitlist view status:PENDING REVIEW  — filter by status
+  /waitlist status user:@someone        — view one person's entry
+  /waitlist promote id:5                — promote an entry to PROMOTED
+  /waitlist remove id:5                 — remove an entry
+
+Statuses: PENDING REVIEW → PROMOTED / REJECTED / CLOSED.
+
+Important: We NEVER auto-accept anyone. You review every submission and
+decide manually. Promoting doesn't accept them — it just flags them as
+ready for the next step.
+
+
+INTERVIEW SCHEDULING
+───────────────────
+
+There's no built-in calendar — when you move someone to INTERVIEW status,
+DM them to schedule a time. Use your best judgment.
+
+A typical interview flow:
+  1. /interview id:0042 (moves them to INTERVIEW status)
+  2. DM the applicant to schedule
+  3. Conduct the interview in a voice channel or DM
+  4. /accept id:0042 or /deny id:0042 based on the interview
+
+
+REVIEWER NOTES
+─────────────
+
+The /accept and /deny commands take an optional notes parameter. These
+notes are saved to the applicant's record. Use them to document:
+  • Why you accepted/denied
+  • What role they were accepted for
+  • Conditions (e.g. "reapply in 30 days")
+  • Interview notes
+
+Other recruiters can see these notes via /application id:0042.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ /application-panel — admin only (posting the panel)
+  ❌ /dashboard, /config — admin only
+  ❌ Moderation commands (warn/mute/kick/ban) — that's moderators
+
+  You CAN see applications and waitlist entries, but you can't moderate
+  the server. If an applicant is being disruptive, ask a moderator.
+
+
+TIPS:
+────
+
+  • Be responsive. Applicants are waiting on you. Try to review new
+    submissions within 24-48 hours.
+
+  • Be clear in your denial notes. "Reapply in 30 days with more RP
+    experience" is more helpful than "denied."
+
+  • Don't accept everyone to boost numbers. A small, active, quality
+    membership beats a huge inactive one every time.
+
+  • Watch for applicants who submit multiple times after being denied.
+    Use /applications to check their history before deciding.
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /applications status:PENDING     (your daily to-do list)
+  /application id:0042             (review one)
+  /accept id:0042 notes:...        (decide)
+  /deny id:0042 notes:...           (decide)
+  /waitlist view                   (check the queue)
+
+That's your workflow. Open /applications status:PENDING in the morning,
+work through them, done.
+
+===============================================================================

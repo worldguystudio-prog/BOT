@@ -1,0 +1,167 @@
+===============================================================================
+              ORGVNUM — ECONOMY & POINTS GUIDE
+            (For staff who award points)
+===============================================================================
+
+The points system is OPTIONAL — an admin has to enable it via
+/dashboard → Economy → Economy Enabled → Enable.
+
+If it's disabled, the /points command still works (it stores points
+internally), but they don't do anything visible to members until the
+economy is turned on.
+
+This guide covers how to award points, check balances, and run the
+leaderboard.
+
+
+WHAT POINTS ARE FOR
+──────────────────
+
+Points reward members for contributing to ORGVNUM. Members earn points by:
+  • Attending training sessions
+  • Participating in events / operations / patrols
+  • Approved roleplay activities
+  • Staff contributions (handled by trainers/admins)
+  • Going above and beyond
+
+Points are NOT currency. You can't buy anything with them. There's no
+gambling, no shop, no transfer between members. They're a recognition
+system — a way to say "you showed up and did the work."
+
+The leaderboard is the payoff: members see their name climb as they
+contribute. That's it. Simple and clean.
+
+
+AWARDING POINTS (staff only)
+────────────────────────────
+
+  /points user:@someone amount:10 reason:Attended Basic Training #1
+  /points user:@someone amount:25 reason:Ran a great RP scene
+  /points user:@someone amount:50 reason:Helped onboard 3 new members
+  /points user:@someone amount:-5 reason:Warning: missed scheduled event
+
+Rules:
+  • Positive amounts add points. Negative amounts remove them.
+  • Always include a clear reason. It's saved to the transaction log.
+  • Be consistent — if you always give 10 for attending training, stick
+    with that. Don't play favorites.
+  • Use negative amounts sparingly and only for legitimate reasons
+    (e.g. points were awarded by mistake, or a member was caught
+    gaming the system).
+
+
+CHECKING BALANCES
+────────────────
+
+  /balance                       (your own balance — any member can use this)
+  /balance user:@someone         (someone else's balance — staff only)
+
+
+THE LEADERBOARD
+───────────────
+
+  /leaderboard                   (points leaderboard — top 10)
+  /leaderboard type:points       (same thing, explicit)
+  /leaderboard type:shifts       (shift leaderboard instead)
+
+Shows the top 10 members by points:
+  1. @user1 — 250 pts
+  2. @user2 — 180 pts
+  3. @user3 — 145 pts
+  ...
+
+
+HOW TO USE POINTS WELL
+──────────────────────
+
+  DO:
+  • Award points immediately after the activity, while it's fresh.
+    "Attended Basic Training #1" beats a generic reason days later.
+  • Use round numbers (5, 10, 25, 50) for consistency.
+  • Be transparent — tell members why they're getting points.
+  • Recognize effort, not just outcomes. Someone who tried hard and
+    learned something deserves points even if they struggled.
+
+  DON'T:
+  • Award points for showing up once. Reward contribution, not presence.
+  • Use points as a punishment tool routinely. They're for recognition.
+  • Give huge amounts casually. Inflation makes them meaningless.
+  • Award points to yourself. That's an admin-only thing if it happens
+    at all, and it should be transparent.
+
+
+SUGGESTED POINT VALUES (calibrate as a team)
+───────────────────────────────────────────
+
+These are starting points — agree on values with your team and stick
+to them:
+
+  Attended a training session          10 pts
+  Ran a training session (trainer)     25 pts
+  Participated in an operation         15 pts
+  Led an operation                     30 pts
+  Helped onboard a new member           20 pts
+  Submitted a quality RP scene         15 pts
+  Caught a rule violation (verified)   10 pts
+  Monthly activity bonus (top 3)       50 pts
+
+Adjust to taste. The key is consistency.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ Transfer points between members (no transfer command by design)
+  ❌ Gamble points (no gambling, period)
+  ❌ Buy roles or perks with points (no shop, period)
+  ❌ See the full transaction history (admin-only via /database)
+
+  You CAN: award/remove points, check balances, see the leaderboard.
+
+
+IF THE ECONOMY IS DISABLED
+──────────────────────────
+
+An admin can turn it off (or it was never turned on). In that case:
+  • /points still works (saves to the database)
+  • /balance still works (shows the saved total)
+  • /leaderboard still works (shows the ranking)
+
+But members won't see the economy as "active" — there's no in-server
+indication it's on. The data is still being collected for when an admin
+does enable it.
+
+To enable: /dashboard → Economy → Economy Enabled → Enable.
+
+
+TIPS:
+────
+
+  • Don't make it rain. Awarding 100 points for everything makes the
+    system meaningless. Small, consistent awards build up over time.
+
+  • Praise publicly. When you award points, mention it in the relevant
+    channel: "Nice work on that scene, +15 pts." The recognition
+    matters more than the number.
+
+  • Review the leaderboard occasionally. If someone's grinding points
+    without real contribution, talk to them. The leaderboard should
+    reflect actual value to the community.
+
+  • If you awarded points by mistake (wrong user, wrong amount), award
+    a negative amount to correct it: /points user:@someone amount:-10
+    reason:Correcting previous over-award
+
+
+THE COMMANDS:
+────────────
+
+  /points user:@someone amount:10 reason:...
+  /balance
+  /balance user:@someone
+  /leaderboard
+
+Four commands. Award consistently, recognize effort, keep the
+leaderboard honest.
+
+===============================================================================

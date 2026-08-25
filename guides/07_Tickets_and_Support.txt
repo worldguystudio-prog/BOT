@@ -1,0 +1,220 @@
+===============================================================================
+              ORGVNUM — TICKETS & SUPPORT GUIDE
+            (For anyone working the ticket queue)
+===============================================================================
+
+This is the deep-dive on the ticket system. If you work tickets — as a
+moderator, staff member, or anyone who helps members — read this. It covers
+the full lifecycle, the gotchas, and how to handle tricky situations.
+
+
+THE TICKET TYPES
+────────────────
+
+When a member opens a ticket, they pick from one of these types:
+
+  🎫 General Support        — general questions, help
+  ⚖️ Moderation Appeal      — appealing a warning/mute/ban
+  📋 Recruitment            — recruitment inquiries
+  📍 Placement Application   — placement-related questions
+  📝 Staff Application       — staff application follow-up
+  🤝 Partnership             — server partnerships
+  🚨 Report a User          — reporting another member
+  🎭 Roleplay Support       — RP-related help
+  💬 Other                  — anything else
+
+Each type can have its own staff roles assigned (via /dashboard → Tickets),
+but by default all staff get access to all tickets.
+
+
+HOW A TICKET GETS OPENED
+────────────────────────
+
+A member clicks the ticket panel (posted by an admin via /ticket-panel),
+picks a type from the dropdown, and the bot:
+
+  1. Creates a private channel under the ticket category
+  2. Grants the member + staff roles access
+  3. Posts a welcome embed with Claim/Close/Lock/Rename buttons
+  4. Logs the open to the ticket log channel
+
+The member gets a hidden confirmation showing their ticket channel.
+
+
+THE TICKET LIFECYCLE
+────────────────────
+
+OPEN
+  → Member can send messages, staff can send messages
+  → Anyone with access can read it
+
+CLAIMED (after someone clicks Claim)
+  → One staff member "owns" it
+  → Other staff can still see and participate, but the claimer is
+    the primary handler
+  → Claim shows in the ticket log
+
+LOCKED (after someone clicks Lock or /lockticket)
+  → The MEMBER can no longer send messages
+  → Staff still can
+  → Use when the member is being disruptive or the ticket is waiting
+    on staff discussion
+
+CLOSED (after someone clicks Close or /closeticket)
+  → Transcript is generated (all messages in the ticket)
+  → Transcript is posted to the transcript channel
+  → Ticket channel is deleted
+  → Close is logged to the ticket log channel
+
+
+THE COMMANDS
+───────────
+
+  /claim                         (take ownership of the current ticket)
+  /unclaim                       (release your claim)
+  /adduser user:@someone         (add a member to this ticket)
+  /removeuser user:@someone      (remove a member from this ticket)
+  /rename name:new-name          (rename the ticket channel)
+  /lockticket                    (stop the member from sending messages)
+  /unlockticket                  (let the member send messages again)
+  /closeticket                   (transcript + close + delete channel)
+
+The buttons on the ticket message do the same things:
+  [ 🙋 Claim ]  [ 🔒 Close ]  [ ⛔ Lock ]  [ ✏️ Rename ]
+
+
+WHEN TO CLAIM
+─────────────
+
+  • Claim a ticket as soon as you start working it.
+  • It tells other staff "I've got this" so they don't pile in.
+  • If you can't finish it, /unclaim so someone else can take it.
+  • Don't claim tickets you're not going to work.
+
+
+WHEN TO LOCK
+───────────
+
+  • The member is spamming or being abusive.
+  • The ticket is waiting on staff discussion and the member keeps
+    interrupting.
+  • You've made a decision and are about to close — lock first so they
+    can't send one last message while you're typing the close summary.
+
+Locking is reversible — just /unlockticket when you want to let them
+talk again.
+
+
+WHEN TO ADD/REMOVE USERS
+────────────────────────
+
+  /adduser    — Add a specialist (e.g. a developer for a technical issue,
+                or a translator for a language barrier).
+  /removeuser — Remove someone who was added but is no longer needed,
+                or who's causing issues.
+
+The member who opened the ticket can't be removed (they're the requester).
+
+
+WHEN TO CLOSE
+────────────
+
+  Close a ticket when:
+  • The issue is resolved
+  • The member has stopped responding for a long time (give them a
+    heads-up first, e.g. "Closing in 24h if no response")
+  • The ticket was opened by mistake or is a duplicate
+
+Don't close abruptly. Always summarize the outcome before closing —
+the transcript captures everything, but a clean summary helps anyone
+reviewing it later.
+
+To close: click the Close button or run /closeticket. The bot generates
+a transcript (text file of all messages), posts it to the transcript
+channel, and deletes the ticket channel.
+
+
+HANDLING APPEALS (Moderation Appeal tickets)
+────────────────────────────────────────────
+
+  1. Read the original case: /case 000123 (use the case ID from the
+     appeal, or look the user up with /warnings user:@someone).
+  2. Decide: uphold or overturn?
+  3. If overturning: /unwarn warning_id:WARN-000123 or /unban user:<id>
+  4. Explain the decision in the ticket.
+  5. Close the ticket.
+
+Don't argue in the ticket. If the appeal is denied, say so clearly,
+close the ticket, and move on. Appeals aren't debates.
+
+
+HANDLING REPORTS (Report a User tickets)
+───────────────────────────────────────
+
+  1. Get the details: who, what, when, evidence (screenshots/links).
+  2. Pull up the reported user's history: /warnings user:@reported
+  3. Decide: warn / timeout / kick / ban / no action.
+  4. Take the action (if any).
+  5. Tell the reporter what happened (without violating the reported
+     user's privacy — don't share exact punishments, just "action taken").
+  6. Close the ticket.
+
+
+TRANSCRIPTS
+──────────
+
+When a ticket closes, the bot:
+  1. Collects every message in the ticket channel (up to ~5000 messages)
+  2. Formats them as a text file: [timestamp] author: message
+  3. Posts the file to the configured transcript channel
+  4. Saves the transcript text to the database too
+
+Transcripts are useful for:
+  • Reviewing how a ticket was handled
+  • Evidence in appeals
+  • Training new staff ("here's how a good ticket looks")
+
+
+GOTCHAS
+──────
+
+  • If /closeticket says "This channel is not a tracked ticket,"
+    you're in a regular channel, not a ticket. Use the command in the
+    actual ticket channel.
+
+  • If the ticket panel doesn't work (clicking it does nothing), an
+    admin needs to set the ticket category and staff role via
+    /dashboard → Tickets.
+
+  • If transcripts aren't posting, an admin needs to set the transcript
+    channel: /dashboard → Tickets → Transcript Channel.
+
+  • You can't /adduser someone who isn't in the server. They need to
+    join first.
+
+  • If you /rename a ticket, the channel name changes but the ticket
+    record stays the same. No data lost.
+
+
+THE GOLDEN RULES
+───────────────
+
+  1. Claim before you work.
+  2. Acknowledge the member quickly, even if you don't have an answer yet.
+  3. Be clear and patient — they're asking for help.
+  4. Summarize before you close.
+  5. Close when done — don't leave tickets hanging.
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /claim                 (start working)
+  /closeticket           (finish working)
+  /adduser user:@someone (bring in a specialist)
+  /lockticket            (pause the conversation)
+  /rename name:...       (tidy up the channel name)
+
+That's your ticket toolkit. Keep the queue moving.
+
+===============================================================================

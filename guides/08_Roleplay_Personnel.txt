@@ -1,0 +1,184 @@
+===============================================================================
+              ORGVNUM — ROLEPLAY & PERSONNEL GUIDE
+            (For roleplay staff and personnel managers)
+===============================================================================
+
+You handle the roleplay side of ORGVNUM — personnel files, callsigns,
+departments, dispatch calls, scenes, alerts, and announcements. This guide
+covers the RP command set.
+
+
+PERSONNEL FILES
+──────────────
+
+Every member can have a personnel file in the bot. It tracks:
+  Name, Callsign, Department, Join Date, Status, Notes
+
+VIEWING:
+  /profile                       (your own file)
+  /profile user:@someone         (someone else's — any member can do this)
+  /personnel user:@someone       (staff view — same info, staff-only reply)
+
+If a member has no file yet, the bot tells you. Files are created
+automatically when a callsign or department is assigned.
+
+
+SETTING STATUS (members can do this themselves):
+  /status set:Active             (options: Active, On Leave, Inactive, LOA)
+  /status                        (view your current status)
+
+Use this to mark yourself On Leave (LOA) when you'll be away. Staff
+checking the roster can see who's active vs. on leave.
+
+
+CALLSIGNS
+────────
+
+  /callsign set user:@someone callsign:ORV-04 department:Operations
+  /callsign remove user:@someone
+
+Callsigns show on the personnel profile. They're required for active
+roleplay personnel — without one, you're not "officially" in the system.
+
+The department is optional but recommended — it ties the callsign to
+a configured department (see below).
+
+
+DEPARTMENTS
+──────────
+
+Departments are configured by admins. Typical ORGVNUM departments:
+
+  Operations, Security, Internal Affairs, Administration,
+  Recruitment, Training, Command
+
+ADMIN COMMANDS (via /dashboard → Departments or /config departments):
+  /config departments add "Operations" @Operations
+  /config departments list
+  /config departments remove "Operations"
+
+Once a department exists, you can assign personnel to it:
+  /callsign set user:@someone callsign:ORV-04 department:Operations
+
+The department shows on their profile and in the personnel file.
+
+
+DISPATCH CALLS
+─────────────
+
+Issue a dispatch call to the dispatch channel (configured by admins):
+
+  /dispatch location:Sector 04 situation:Unauthorized activity units:Alpha Squad
+
+Posts a branded embed:
+  ┌─────────────────────────────────────┐
+  │ ORGVNUM DISPATCH                    │
+  │                                     │
+  │ Location: Sector 04                 │
+  │ Situation: Unauthorized activity    │
+  │ Units: Alpha Squad                  │
+  │                                     │
+  │ Units are advised to proceed        │
+  │ according to RP procedures.         │
+  └─────────────────────────────────────┘
+
+This is the standard "call to action" command. Use it when something's
+happening in RP that units need to respond to.
+
+
+SCENES
+─────
+
+Open a roleplay scene:
+
+  /scene name:Bank Heist description:"Armed robbery in progress, hostages reported" participants:@user1 @user2
+
+Posts a branded embed announcing the scene and tagging the participants.
+Use this to kick off coordinated RP scenarios.
+
+
+ALERTS
+──────
+
+Broadcast an ORGVNUM alert (pings @here):
+
+  /alert message:All units stand down level:warning
+  /alert message:Code red, all hands required level:danger
+  /alert message:Routine update, no action needed level:info
+
+The level changes the embed color:
+  info    → charcoal (calm)
+  warning → gold     (caution)
+  danger  → red      (urgent)
+
+/alert pings @here. Use sparingly — only when you actually need people's
+attention right now.
+
+
+ANNOUNCEMENTS (Directorate and above only)
+──────────────────────────────────────────
+
+  /announcement title:Weekly Brief body:New protocols in effect Monday.
+
+Pings @everyone by default. Use mention_everyone:false to skip the ping.
+This is the formal, official broadcast command. Read 02_Directorate_Command.txt
+for details.
+
+
+PERSONNEL MANAGEMENT TIPS
+─────────────────────────
+
+  • Keep callsigns consistent. If Operations uses ORV-XX, stick with that
+    format. Don't assign random callsigns.
+
+  • When someone leaves the server or goes inactive, set their status:
+    /status set:Inactive (you can do this on their behalf if you're staff)
+    Actually no — members set their own status. You can note it in the
+    personnel file via /callsign set with their existing callsign.
+
+  • Use the personnel notes field (via the database, not a command yet)
+    to record roleplay-specific notes: training completed, commendations,
+    incidents. This is coming in a future update.
+
+  • Departments can have linked Discord roles. When an admin creates a
+    department via /dashboard → Departments, they can attach a role.
+    Members in that role show as part of that department.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ /announcement — Directorate and above (you can use /alert instead)
+  ❌ /dashboard, /config — admin only
+  ❌ Create/delete departments — admin only (you assign personnel, not departments)
+
+  You CAN: view profiles, set callsigns, set status, dispatch, scene, alert.
+
+
+TIPS:
+────
+
+  • Use /dispatch for in-RP emergencies, /alert for out-of-RP announcements.
+    Don't mix them up.
+
+  • /scene is for starting coordinated RP. Tag the participants so they
+    get notified.
+
+  • Don't spam /alert. If everything is an alert, nothing is. Reserve it
+    for situations where staff genuinely need to drop what they're doing.
+
+  • Keep your personnel file accurate. If your status changes, update it.
+
+
+THE COMMANDS YOU'LL USE MOST:
+─────────────────────────────
+
+  /profile user:@someone          (who am I looking at?)
+  /callsign set user:@someone callsign:ORV-04 department:Operations
+  /dispatch location:... situation:...
+  /alert message:... level:...
+  /scene name:... description:... participants:@user1 @user2
+
+That's your RP toolkit. Run the scenario.
+
+===============================================================================

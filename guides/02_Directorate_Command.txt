@@ -1,0 +1,94 @@
+===============================================================================
+              ORGVNUM — DIRECTORATE COMMAND GUIDE
+                       (Permission Level 80)
+===============================================================================
+
+You're senior command. Directorate sits above moderators and department heads,
+below only administrators and the owner. Think of yourself as the command
+staff — you set the tone, post the big announcements, and have oversight over
+the whole operation.
+
+
+WHAT YOU CAN DO:
+───────────────
+
+POST OFFICIAL ANNOUNCEMENTS (/announcement)
+  Posts a branded announcement that pings @everyone by default.
+
+    /announcement title:Weekly Brief body:New protocols in effect Monday.
+    /announcement title:Promotions body:Congrats to our new mods! mention_everyone:false
+
+  Use the mention_everyone:false option if you want to post without pinging
+  the whole server. Only Directorate and above can use this.
+
+
+EVERYTHING MODERATORS CAN DO:
+  Read 03_Moderators.txt for the full list. Quick summary:
+    /warn /mute /timeout /kick /ban /softban /purge /slowmode /lock /case
+    /warnings /nickname
+
+  Plus:
+    /training create/start/end/cancel/roster
+    /shift start/end/status/leaderboard
+    /points user:@someone amount:50
+    /dispatch /scene /alert /callsign
+
+  Plus all ticket, application, and waitlist management commands.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  These require Administrator (90) or Owner (100):
+
+  ❌ /dashboard — configure bot settings
+  ❌ /config — same, via typed commands
+  ❌ /ticket-panel, /application-panel — post system panels
+  ❌ /automod enable/disable — toggle auto-moderation
+  ❌ /lockdown /unlockdown — server-wide emergency lockdown
+  ❌ /clearwarnings — wipe someone's entire warning record
+  ❌ /reload /sync /database /debug — owner-only maintenance
+
+
+YOUR ROLE IN PRACTICE:
+─────────────────────
+
+  • You're the public face of leadership. Use /announcement for the
+    big stuff — policy changes, promotions, events, server-wide notices.
+
+  • You have full moderation power. If a situation escalates beyond
+    what a regular moderator should handle, you step in.
+
+  • You can create and run training sessions, events, and operations.
+    Read 05_Trainers.txt for details.
+
+  • You can review applications and run the waitlist. Read
+    04_Recruiters.txt for details.
+
+  • You manage shifts and can see the leaderboard. Read
+    09_Shifts_and_Activity.txt.
+
+
+TIPS:
+────
+
+  • Don't overuse /announcement with @everyone. People mute the server
+    if it pings too often. Save it for the important stuff.
+
+  • If you need to make a quick broadcast that's less formal, use
+    /alert instead (pings @here, not @everyone).
+
+  • When you moderate someone, they get a DM automatically. You don't
+    need to message them separately.
+
+  • Every action you take is logged to the mod log channel. Be
+    deliberate — your name's on the record.
+
+
+THE COMMAND YOU'LL USE MOST:
+────────────────────────────
+
+  /announcement title:... body:...
+
+That's your signature move. Use it well.
+===============================================================================

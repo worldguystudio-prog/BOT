@@ -1,0 +1,156 @@
+===============================================================================
+              ORGVNUM — SHIFTS & ACTIVITY GUIDE
+            (For everyone on the staff team)
+===============================================================================
+
+This guide covers the shift system — how to clock in, clock out, check
+your status, and see who's been putting in the work. Shifts are how we
+track staff activity fairly.
+
+
+WHY SHIFTS MATTER
+────────────────
+
+Every server has people who say they're "active" but never actually do
+anything. The shift system fixes that. When you start a shift, the bot
+records:
+
+  • Who you are
+  • When you started
+  • When you ended
+  • How long you worked
+  • Which department you were working in
+
+Over time, this builds a fair picture of who's actually contributing.
+Promotions, commendations, and even warnings for inactivity are based
+on this data — so use it honestly.
+
+
+STARTING A SHIFT
+───────────────
+
+  /shift start department:Support
+
+The department is optional but recommended. Use it to track what kind
+of work you were doing:
+
+  /shift start department:Support        (working tickets)
+  /shift start department:Moderation     (handling reports)
+  /shift start department:Training       (running a session)
+  /shift start department:Recruitment     (reviewing applications)
+  /shift start department:Roleplay       (running RP)
+
+When you start a shift, the bot confirms:
+  "Shift started at <time>. Department: Support"
+
+
+CHECKING YOUR STATUS
+────────────────────
+
+  /shift status
+
+Tells you:
+  • That you're on shift
+  • When you started
+  • How long you've been working
+  • Which department
+
+If you're not on shift, it says so.
+
+
+ENDING A SHIFT
+─────────────
+
+  /shift end
+
+Tells you how long you worked:
+  "Shift ended. Duration: 1h 23m."
+
+The duration is saved to the database and counts toward your total.
+
+
+THE LEADERBOARD
+──────────────
+
+  /shift leaderboard
+
+Shows the top 10 staff by total shift time:
+  1. @user1 — 45h 30m (12 shifts)
+  2. @user2 — 38h 15m (9 shifts)
+  3. @user3 — 22h 0m (5 shifts)
+  ...
+
+You can also see the points leaderboard:
+  /leaderboard type:points    (points — if economy enabled)
+  /leaderboard type:shifts    (shifts — same as /shift leaderboard)
+
+
+HOW TO USE SHIFTS HONESTLY
+──────────────────────────
+
+  DO:
+  • Start a shift when you come online and start working.
+  • End it when you stop (before you go AFK, not after).
+  • Use the department tag so the data is meaningful.
+
+  DON'T:
+  • Start a shift and walk away. The leaderboard will show inflated
+    hours but your actual contribution is zero. Staff notice.
+  • Forget to end shifts. If you leave one running for 8 hours while
+    you slept, it skews the data. Be honest.
+  • Use shifts to compete. The goal is tracking real activity, not
+    gaming a metric.
+
+If you forget to end a shift and notice it later, tell an admin — they
+can adjust the record. Don't just leave it running.
+
+
+TYPICAL DAY
+──────────
+
+  1. Come online.
+  2. /shift start department:Support
+  3. Work tickets, help members, do your thing.
+  4. If you switch tasks (e.g. start running a training):
+     /shift end
+     /shift start department:Training
+  5. When you're done for the day:
+     /shift end
+  6. Done.
+
+You don't need to end and restart for every tiny task change. Just use
+the department tag for the bulk of what you're doing that session.
+
+
+WHAT YOU CAN'T DO:
+─────────────────
+
+  ❌ Edit shift records after the fact (only admins can via the database)
+  ❌ See other people's real-time shift status (only the leaderboard)
+
+  You CAN: start/end your own shifts, check your own status, see the
+  leaderboard.
+
+
+TIPS:
+────
+
+  • Make it a habit. Start a shift the moment you sit down to work.
+  • End it before you walk away, not after.
+  • Check the leaderboard occasionally to see where you stand.
+  • If you're going on leave, /status set:On Leave so people know
+    why your shift activity drops.
+
+
+THE COMMANDS:
+────────────
+
+  /shift start department:Support
+  /shift status
+  /shift end
+  /shift leaderboard
+
+Four commands. That's the whole system. Use them and your activity
+gets tracked fairly.
+
+===============================================================================
