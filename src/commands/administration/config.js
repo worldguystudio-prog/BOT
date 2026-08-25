@@ -1,133 +1,420 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from 'discord.js';
 import { getSetting, setSetting, getAllSettings, addDepartment, removeDepartment, getDepartments } from '../../database/helpers.js';
 import { successEmbed, errorEmbed, brandedEmbed } from '../../utils/embeds.js';
 import { config } from '../../config/config.js';
 
-const SETTING_CHOICES = [
-  { name: 'Log Channel', value: 'log_channel_id' },
-  { name: 'Welcome Channel', value: 'welcome_channel_id' },
-  { name: 'Welcome Message', value: 'welcome_message' },
-  { name: 'Default Role', value: 'default_role_id' },
-  { name: 'Ticket Category', value: 'ticket_category_id' },
-  { name: 'Staff Role', value: 'staff_role_id' },
-  { name: 'Moderator Role', value: 'moderator_role_id' },
-  { name: 'Directorate Role', value: 'directorate_role_id' },
-  { name: 'Recruiter Role', value: 'recruiter_role_id' },
-  { name: 'Muted Role', value: 'muted_role_id' },
-  { name: 'Application Channel', value: 'application_channel_id' },
-  { name: 'Recruitment Channel', value: 'recruitment_channel_id' },
-  { name: 'Tickets Per User (max)', value: 'ticket_max_per_user' },
-  { name: 'Economy Enabled', value: 'economy_enabled' },
-];
+/**
+ * ORGVNUM — Comprehensive Configuration System
+ *
+ * All server-specific IDs are stored in SQLite and configurable via this command.
+ * No hard-coded IDs anywhere in the codebase.
+ *
+ * Settings are organized into logical groups:
+ *   welcome, logs, tickets, applications, recruitment, roleplay,
+ *   economy, shifts, training, roles, departments, permissions
+ */
+
+// A flat list of all configurable string settings, grouped for display + reset.
+const SETTING_CATALOG = {
+  welcome: {
+    label: 'Welcome System',
+    emoji: '👋',
+    items: [
+      { key: 'welcome_channel_id', label: 'Welcome Channel', type: 'channel' },
+      { key: 'leave_channel_id', label: 'Leave Log Channel', type: 'channel' },
+      { key: 'welcome_message', label: 'Welcome Message', type: 'text' },
+      { key: 'default_role_id', label: 'Default Role (auto-assigned on join)', type: 'role' },
+    ],
+  },
+  logs: {
+    label: 'Logging Channels',
+    emoji: '📋',
+    items: [
+      { key: 'log_channel_id', label: 'Main Moderation Log', type: 'channel' },
+      { key: 'message_log_channel_id', label: 'Message Edit/Delete Log', type: 'channel' },
+      { key: 'member_log_channel_id', label: 'Member Join/Leave Log', type: 'channel' },
+      { key: 'ticket_log_channel_id', label: 'Ticket Log', type: 'channel' },
+      { key: 'application_log_channel_id', label: 'Application Log', type: 'channel' },
+    ],
+  },
+  tickets: {
+    label: 'Ticket System',
+    emoji: '🎫',
+    items: [
+      { key: 'ticket_category_id', label: 'Ticket Category', type: 'channel' },
+      { key: 'ticket_panel_channel_id', label: 'Panel Channel (where /ticket-panel posts)', type: 'channel' },
+      { key: 'ticket_transcript_channel_id', label: 'Transcript Channel', type: 'channel' },
+      { key: 'staff_role_id', label: 'Staff Role (ticket access)', type: 'role' },
+      { key: 'ticket_max_per_user', label: 'Max Tickets Per User', type: 'int' },
+    ],
+  },
+  applications: {
+    label: 'Applications',
+    emoji: '📝',
+    items: [
+      { key: 'application_channel_id', label: 'Application Review Channel', type: 'channel' },
+      { key: 'recruiter_role_id', label: 'Recruiter Role', type: 'role' },
+    ],
+  },
+  recruitment: {
+    label: 'Recruitment & Waitlist',
+    emoji: '📋',
+    items: [
+      { key: 'recruitment_channel_id', label: 'Recruitment Channel', type: 'channel' },
+      { key: 'waitlist_channel_id', label: 'Waitlist Channel', type: 'channel' },
+    ],
+  },
+  roleplay: {
+    label: 'Roleplay',
+    emoji: '🎭',
+    items: [
+      { key: 'dispatch_channel_id', label: 'Dispatch Channel', type: 'channel' },
+      { key: 'scene_channel_id', label: 'Scene Channel', type: 'channel' },
+      { key: 'roleplay_log_channel_id', label: 'Roleplay Log Channel', type: 'channel' },
+    ],
+  },
+  economy: {
+    label: 'Economy / Points',
+    emoji: '💰',
+    items: [
+      { key: 'economy_enabled', label: 'Economy Enabled', type: 'bool' },
+      { key: 'economy_channel_id', label: 'Economy Display Channel', type: 'channel' },
+    ],
+  },
+  shifts: {
+    label: 'Shifts',
+    emoji: '⏱️',
+    items: [
+      { key: 'shift_channel_id', label: 'Shift Log Channel', type: 'channel' },
+    ],
+  },
+  training: {
+    label: 'Training & Events',
+    emoji: '📅',
+    items: [
+      { key: 'training_channel_id', label: 'Training/Event Channel', type: 'channel' },
+      { key: 'training_log_channel_id', label: 'Training Log Channel', type: 'channel' },
+    ],
+  },
+  roles: {
+    label: 'Staff Roles',
+    emoji: '🛡️',
+    items: [
+      { key: 'moderator_role_id', label: 'Moderator Role', type: 'role' },
+      { key: 'directorate_role_id', label: 'Directorate Role', type: 'role' },
+      { key: 'trainer_role_id', label: 'Trainer Role', type: 'role' },
+      { key: 'muted_role_id', label: 'Muted Role', type: 'role' },
+    ],
+  },
+};
+
+// Flatten for the reset command's choices.
+const ALL_SETTING_CHOICES = Object.entries(SETTING_CATALOG).flatMap(([cat, g]) =>
+  g.items.map((i) => ({ name: `${g.emoji} ${g.label} → ${i.label}`, value: i.key })),
+);
 
 export default {
   data: new SlashCommandBuilder()
     .setName('config')
-    .setDescription('Configure ORGVNUM settings.')
-    .addSubcommand((s) => s.setName('view').setDescription('View all current settings.'))
+    .setDescription('Configure all ORGVNUM settings — channels, roles, and systems.')
+
+    // ─── view ───────────────────────────────────────
+    .addSubcommand((s) => s.setName('view').setDescription('View the full ORGVNUM configuration.'))
+
+    // ─── reset ─────────────────────────────────────
     .addSubcommand((s) =>
       s
-        .setName('set')
-        .setDescription('Set a configuration value.')
-        .addStringOption((o) => o.setName('setting').setDescription('Setting name').setRequired(true).addChoices(...SETTING_CHOICES))
-        .addStringOption((o) => o.setName('value').setDescription('Value (ID, text, or on/off)').setRequired(true))
-        .addChannelOption((o) => o.setName('channel').setDescription('Channel (for channel settings)').setRequired(false))
-        .addRoleOption((o) => o.setName('role').setDescription('Role (for role settings)').setRequired(false)),
+        .setName('reset')
+        .setDescription('Clear a single setting back to its default.')
+        .addStringOption((o) => o.setName('setting').setDescription('Setting to reset').setRequired(true).addChoices(...ALL_SETTING_CHOICES)),
     )
+
+    // ─── permissions ───────────────────────────────
     .addSubcommand((s) =>
       s
         .setName('permissions')
         .setDescription('Map a role to a permission level.')
-        .addRoleOption((o) => o.setName('role').setDescription('Role').setRequired(true))
+        .addRoleOption((o) => o.setName('role').setDescription('Role to map').setRequired(true))
         .addStringOption((o) =>
           o
             .setName('level')
             .setDescription('Permission level')
             .setRequired(true)
             .addChoices(
-              { name: 'Administrator', value: '90' },
-              { name: 'Directorate Command', value: '80' },
-              { name: 'Department Command', value: '70' },
-              { name: 'Moderator', value: '60' },
-              { name: 'Recruiter', value: '50' },
-              { name: 'Trainer', value: '40' },
-              { name: 'Staff', value: '30' },
+              { name: 'Owner (100)', value: '100' },
+              { name: 'Administrator (90)', value: '90' },
+              { name: 'Directorate Command (80)', value: '80' },
+              { name: 'Department Command (70)', value: '70' },
+              { name: 'Moderator (60)', value: '60' },
+              { name: 'Recruiter (50)', value: '50' },
+              { name: 'Trainer (40)', value: '40' },
+              { name: 'Staff (30)', value: '30' },
+              { name: 'Remove mapping', value: '0' },
             ),
         ),
     )
-    .addSubcommand((s) =>
-      s
+
+    // ─── welcome ───────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('welcome')
+        .setDescription('Configure the welcome system.')
+        .addSubcommand((s) => s.setName('channel').setDescription('Where welcome messages are sent.').addChannelOption((o) => o.setName('channel').setDescription('Welcome channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('leave_channel').setDescription('Where leave messages are logged.').addChannelOption((o) => o.setName('channel').setDescription('Leave log channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('message').setDescription('Custom welcome message (use {user} for mention).').addStringOption((o) => o.setName('text').setDescription('Welcome message text').setRequired(true).setMaxLength(1000)))
+        .addSubcommand((s) => s.setName('role').setDescription('Role auto-assigned on join.').addRoleOption((o) => o.setName('role').setDescription('Default role').setRequired(true))),
+    )
+
+    // ─── logs ──────────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('logs')
+        .setDescription('Configure log channels.')
+        .addSubcommand((s) => s.setName('moderation').setDescription('Main moderation log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('messages').setDescription('Message edit/delete log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('members').setDescription('Member join/leave log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('tickets').setDescription('Ticket log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('applications').setDescription('Application log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── tickets ───────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('tickets')
+        .setDescription('Configure the ticket system.')
+        .addSubcommand((s) => s.setName('category').setDescription('Category new tickets are created under.').addChannelOption((o) => o.setName('category').setDescription('Ticket category').setRequired(true).addChannelTypes(ChannelType.GuildCategory)))
+        .addSubcommand((s) => s.setName('panel').setDescription('Channel where /ticket-panel posts the panel.').addChannelOption((o) => o.setName('channel').setDescription('Panel channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('transcript').setDescription('Channel where transcripts are sent.').addChannelOption((o) => o.setName('channel').setDescription('Transcript channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('staff').setDescription('Staff role that gets ticket access.').addRoleOption((o) => o.setName('role').setDescription('Staff role').setRequired(true)))
+        .addSubcommand((s) => s.setName('max').setDescription('Max open tickets per user.').addIntegerOption((o) => o.setName('amount').setDescription('Max tickets (1-10)').setRequired(true).setMinValue(1).setMaxValue(10))),
+    )
+
+    // ─── applications ──────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('applications')
+        .setDescription('Configure the application system.')
+        .addSubcommand((s) => s.setName('channel').setDescription('Where application review panels are posted.').addChannelOption((o) => o.setName('channel').setDescription('Application review channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('recruiter').setDescription('Recruiter role (can review applications).').addRoleOption((o) => o.setName('role').setDescription('Recruiter role').setRequired(true))),
+    )
+
+    // ─── recruitment ───────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('recruitment')
+        .setDescription('Configure recruitment & waitlist channels.')
+        .addSubcommand((s) => s.setName('channel').setDescription('Recruitment info channel.').addChannelOption((o) => o.setName('channel').setDescription('Recruitment channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('waitlist').setDescription('Waitlist channel.').addChannelOption((o) => o.setName('channel').setDescription('Waitlist channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── roleplay ─────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('roleplay')
+        .setDescription('Configure roleplay channels.')
+        .addSubcommand((s) => s.setName('dispatch').setDescription('Dispatch channel.').addChannelOption((o) => o.setName('channel').setDescription('Dispatch channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('scene').setDescription('Scene channel.').addChannelOption((o) => o.setName('channel').setDescription('Scene channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('log').setDescription('Roleplay log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── economy ──────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('economy')
+        .setDescription('Configure the points economy.')
+        .addSubcommand((s) => s.setName('enable').setDescription('Enable or disable the economy.').addBooleanOption((o) => o.setName('enabled').setDescription('True = on, False = off').setRequired(true)))
+        .addSubcommand((s) => s.setName('channel').setDescription('Economy display channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── shifts ───────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('shifts')
+        .setDescription('Configure the shift system.')
+        .addSubcommand((s) => s.setName('channel').setDescription('Shift log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── training ─────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('training')
+        .setDescription('Configure training & events.')
+        .addSubcommand((s) => s.setName('channel').setDescription('Training/event channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('log').setDescription('Training log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+    )
+
+    // ─── roles ────────────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
+        .setName('roles')
+        .setDescription('Configure staff roles.')
+        .addSubcommand((s) => s.setName('moderator').setDescription('Moderator role.').addRoleOption((o) => o.setName('role').setDescription('Role').setRequired(true)))
+        .addSubcommand((s) => s.setName('directorate').setDescription('Directorate role.').addRoleOption((o) => o.setName('role').setDescription('Role').setRequired(true)))
+        .addSubcommand((s) => s.setName('trainer').setDescription('Trainer role.').addRoleOption((o) => o.setName('role').setDescription('Role').setRequired(true)))
+        .addSubcommand((s) => s.setName('muted').setDescription('Muted role (for /mute).').addRoleOption((o) => o.setName('role').setDescription('Role').setRequired(true))),
+    )
+
+    // ─── departments ──────────────────────────────
+    .addSubcommandGroup((g) =>
+      g
         .setName('departments')
-        .setDescription('Manage departments.')
-        .addStringOption((o) => o.setName('action').setDescription('Action').setRequired(true).addChoices({ name: 'Add', value: 'add' }, { name: 'Remove', value: 'remove' }, { name: 'List', value: 'list' }))
-        .addStringOption((o) => o.setName('name').setDescription('Department name').setRequired(false))
-        .addRoleOption((o) => o.setName('role').setDescription('Role linked to this department').setRequired(false)),
+        .setDescription('Manage roleplay departments.')
+        .addSubcommand((s) => s.setName('add').setDescription('Add a department.').addStringOption((o) => o.setName('name').setDescription('Department name').setRequired(true).setMaxLength(50)).addRoleOption((o) => o.setName('role').setDescription('Role linked to this department').setRequired(false)))
+        .addSubcommand((s) => s.setName('remove').setDescription('Remove a department.').addStringOption((o) => o.setName('name').setDescription('Department name').setRequired(true)))
+        .addSubcommand((s) => s.setName('list').setDescription('List all departments.')),
     ),
+
   requiredLevel: config.permissionLevels.ADMINISTRATOR,
   requiredPermissions: [PermissionFlagsBits.ManageGuild],
-  cooldown: 2000,
+  cooldown: 1000,
+
   async execute(interaction) {
-    const sub = interaction.options.getSubcommand();
+    const subcommandGroup = interaction.options.getSubcommandGroup();
+    const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
 
-    if (sub === 'view') {
-      const settings = getAllSettings(guildId);
-      const permRoles = settings.permission_roles ? JSON.parse(settings.permission_roles) : {};
-      const permLines = Object.entries(permRoles).map(([rid, lvl]) => `• <@&${rid}> → ${lvl}`);
-      const lines = SETTING_CHOICES.map((c) => `• ${c.name}: \`${settings[c.value] || '—'}\``);
-      return interaction.reply({
-        embeds: [brandedEmbed(`**ORGVNUM — Current Configuration**\n\n**General**\n${lines.join('\n')}${permLines.length ? `\n\n**Permission Roles**\n${permLines.join('\n')}` : ''}`, 'ORGVNUM — Config').addFields(
-          { name: 'Departments', value: getDepartments(guildId).map((d) => `• ${d.name}${d.role_id ? ` (<@&${d.role_id}>)` : ''}`).join('\n') || 'None configured', inline: false },
-        )],
-        ephemeral: true,
-      });
+    // ─── Top-level subcommands (no group) ───────────
+    if (!subcommandGroup) {
+      // /config view
+      if (subcommand === 'view') return handleView(interaction);
+      // /config reset
+      if (subcommand === 'reset') return handleReset(interaction);
+      // /config permissions
+      if (subcommand === 'permissions') return handlePermissions(interaction);
     }
 
-    if (sub === 'set') {
-      const setting = interaction.options.getString('setting', true);
-      const channel = interaction.options.getChannel('channel');
-      const role = interaction.options.getRole('role');
-      const text = interaction.options.getString('value', true);
-      let value = text;
-      if (channel) value = channel.id;
-      if (role) value = role.id;
-      if (setting === 'economy_enabled') value = /^(1|true|on|yes)$/i.test(value) ? '1' : '0';
-      setSetting(guildId, setting, value);
-      return interaction.reply({ embeds: [successEmbed(`Set **${setting}** to \`${value}\`.`)] });
-    }
+    // ─── Grouped subcommands ────────────────────────
+    // Resolve the setting key from the group + subcommand.
+    const key = resolveSettingKey(subcommandGroup, subcommand);
+    if (!key) return interaction.reply({ embeds: [errorEmbed('Unknown configuration option.')], ephemeral: true });
 
-    if (sub === 'permissions') {
-      const role = interaction.options.getRole('role', true);
-      const level = parseInt(interaction.options.getString('level', true), 10);
-      const raw = getSetting(guildId, 'permission_roles', '{}');
-      const map = JSON.parse(raw);
-      if (level) {
-        map[role.id] = level;
-      } else {
-        delete map[role.id];
-      }
-      setSetting(guildId, 'permission_roles', JSON.stringify(map));
-      return interaction.reply({ embeds: [successEmbed(`Role <@&${role.id}> mapped to level **${level}**.`)] });
-    }
+    // Handle departments specially.
+    if (subcommandGroup === 'departments') return handleDepartments(interaction, subcommand);
 
-    if (sub === 'departments') {
-      const action = interaction.options.getString('action', true);
-      const name = interaction.options.getString('name');
-      const role = interaction.options.getRole('role');
-      if (action === 'list') {
-        const depts = getDepartments(guildId);
-        return interaction.reply({ embeds: [brandedEmbed(`**Departments (${depts.length})**\n\n${depts.map((d) => `• ${d.name}${d.role_id ? ` → <@&${d.role_id}>` : ''}`).join('\n') || 'None'}`)] });
-      }
-      if (action === 'add') {
-        if (!name) return interaction.reply({ embeds: [errorEmbed('Provide a department name.')] , ephemeral: true });
-        addDepartment(guildId, name, role?.id || null, null);
-        return interaction.reply({ embeds: [successEmbed(`Department **${name}** added${role ? ` (role: <@&${role.id}>)` : ''}.`)] });
-      }
-      if (action === 'remove') {
-        if (!name) return interaction.reply({ embeds: [errorEmbed('Provide a department name.')] , ephemeral: true });
-        removeDepartment(guildId, name);
-        return interaction.reply({ embeds: [successEmbed(`Department **${name}** removed.`)] });
-      }
-    }
+    // Gather the value from whichever option type is present.
+    const channel = interaction.options.getChannel('channel') || interaction.options.getChannel('category');
+    const role = interaction.options.getRole('role');
+    const text = interaction.options.getString('text');
+    const bool = interaction.options.getBoolean('enabled');
+    const int = interaction.options.getInteger('amount');
+
+    let value = null;
+    let pretty = '';
+    if (channel) { value = channel.id; pretty = `<#${channel.id}>`; }
+    else if (role) { value = role.id; pretty = `<@&${role.id}>`; }
+    else if (text !== null) { value = text; pretty = text.slice(0, 80); }
+    else if (bool !== null) { value = bool ? '1' : '0'; pretty = bool ? 'Enabled' : 'Disabled'; }
+    else if (int !== null) { value = String(int); pretty = String(int); }
+
+    if (value === null) return interaction.reply({ embeds: [errorEmbed('No value provided.')], ephemeral: true });
+
+    setSetting(guildId, key, value);
+    const label = SETTING_CATALOG[subcommandGroup]?.items.find((i) => i.key === key)?.label || key;
+    return interaction.reply({
+      embeds: [successEmbed(`**${label}** set to ${pretty}.\n\n(\`${key}\` = \`${value}\`)`, '✅ Configuration Updated')],
+      ephemeral: true,
+    });
   },
 };
+
+/* ─────────── Handlers ─────────── */
+
+function resolveSettingKey(group, sub) {
+  const map = {
+    welcome: { channel: 'welcome_channel_id', leave_channel: 'leave_channel_id', message: 'welcome_message', role: 'default_role_id' },
+    logs: { moderation: 'log_channel_id', messages: 'message_log_channel_id', members: 'member_log_channel_id', tickets: 'ticket_log_channel_id', applications: 'application_log_channel_id' },
+    tickets: { category: 'ticket_category_id', panel: 'ticket_panel_channel_id', transcript: 'ticket_transcript_channel_id', staff: 'staff_role_id', max: 'ticket_max_per_user' },
+    applications: { channel: 'application_channel_id', recruiter: 'recruiter_role_id' },
+    recruitment: { channel: 'recruitment_channel_id', waitlist: 'waitlist_channel_id' },
+    roleplay: { dispatch: 'dispatch_channel_id', scene: 'scene_channel_id', log: 'roleplay_log_channel_id' },
+    economy: { enable: 'economy_enabled', channel: 'economy_channel_id' },
+    shifts: { channel: 'shift_channel_id' },
+    training: { channel: 'training_channel_id', log: 'training_log_channel_id' },
+    roles: { moderator: 'moderator_role_id', directorate: 'directorate_role_id', trainer: 'trainer_role_id', muted: 'muted_role_id' },
+  };
+  return map[group]?.[sub] || null;
+}
+
+async function handleView(interaction) {
+  const settings = getAllSettings(interaction.guild.id);
+  const permRoles = settings.permission_roles ? JSON.parse(settings.permission_roles) : {};
+  const depts = getDepartments(interaction.guild.id);
+
+  const fields = [];
+  for (const [catKey, group] of Object.entries(SETTING_CATALOG)) {
+    const lines = group.items.map((item) => {
+      const raw = settings[item.key];
+      if (!raw) return `• ${item.label}: \`— not set —\``;
+      if (item.type === 'channel') return `• ${item.label}: <#${raw}>`;
+      if (item.type === 'role') return `• ${item.label}: <@&${raw}>`;
+      if (item.type === 'bool') return `• ${item.label}: ${raw === '1' ? '✅ Enabled' : '❌ Disabled'}`;
+      if (item.type === 'int') return `• ${item.label}: \`${raw}\``;
+      return `• ${item.label}: \`${raw}\``;
+    });
+    fields.push({ name: `${group.emoji} ${group.label}`, value: lines.join('\n'), inline: false });
+  }
+
+  // Permission roles.
+  if (Object.keys(permRoles).length) {
+    const lvlNames = { 100: 'Owner', 90: 'Administrator', 80: 'Directorate', 70: 'Department', 60: 'Moderator', 50: 'Recruiter', 40: 'Trainer', 30: 'Staff', 10: 'Member' };
+    fields.push({ name: '🛡️ Permission Roles', value: Object.entries(permRoles).map(([rid, lvl]) => `• <@&${rid}> → ${lvlNames[lvl] || lvl}`).join('\n'), inline: false });
+  }
+
+  // Departments.
+  fields.push({
+    name: '🏢 Departments',
+    value: depts.length ? depts.map((d) => `• ${d.name}${d.role_id ? ` (<@&${d.role_id}>)` : ''}`).join('\n') : '— none configured —',
+    inline: false,
+  });
+
+  return interaction.reply({
+    embeds: [brandedEmbed('**ORGVNUM — Full Configuration**\n\nAll settings below are configurable via the `/config` subcommands. Changes take effect immediately.', 'ORGVNUM — Configuration').addFields(fields)],
+    ephemeral: true,
+  });
+}
+
+async function handleReset(interaction) {
+  const key = interaction.options.getString('setting', true);
+  // Delete the setting row.
+  const { run } = await import('../../database/helpers.js');
+  run('DELETE FROM settings WHERE guild_id = ? AND key = ?', [interaction.guild.id, key]);
+  const label = ALL_SETTING_CHOICES.find((c) => c.value === key)?.name || key;
+  return interaction.reply({ embeds: [successEmbed(`**${label}** has been reset to its default.`, '✅ Setting Reset')], ephemeral: true });
+}
+
+async function handlePermissions(interaction) {
+  const role = interaction.options.getRole('role', true);
+  const level = parseInt(interaction.options.getString('level', true), 10);
+  const raw = getSetting(interaction.guild.id, 'permission_roles', '{}');
+  const map = JSON.parse(raw);
+  if (level === 0) {
+    delete map[role.id];
+    setSetting(interaction.guild.id, 'permission_roles', JSON.stringify(map));
+    return interaction.reply({ embeds: [successEmbed(`Role <@&${role.id}> permission mapping removed.`)], ephemeral: true });
+  }
+  map[role.id] = level;
+  setSetting(interaction.guild.id, 'permission_roles', JSON.stringify(map));
+  const names = { 100: 'Owner', 90: 'Administrator', 80: 'Directorate Command', 70: 'Department Command', 60: 'Moderator', 50: 'Recruiter', 40: 'Trainer', 30: 'Staff' };
+  return interaction.reply({ embeds: [successEmbed(`Role <@&${role.id}> mapped to **${names[level] || level}** (${level}).`)], ephemeral: true });
+}
+
+async function handleDepartments(interaction, sub) {
+  if (sub === 'list') {
+    const depts = getDepartments(interaction.guild.id);
+    return interaction.reply({
+      embeds: [brandedEmbed(`**Departments (${depts.length})**\n\n${depts.length ? depts.map((d) => `• ${d.name}${d.role_id ? ` → <@&${d.role_id}>` : ''}`).join('\n') : '— none —'}`, '🏢 Departments')],
+      ephemeral: true,
+    });
+  }
+  if (sub === 'add') {
+    const name = interaction.options.getString('name', true);
+    const role = interaction.options.getRole('role');
+    addDepartment(interaction.guild.id, name, role?.id || null, null);
+    return interaction.reply({ embeds: [successEmbed(`Department **${name}** added${role ? ` (role: <@&${role.id}>)` : ''}.`)], ephemeral: true });
+  }
+  if (sub === 'remove') {
+    const name = interaction.options.getString('name', true);
+    removeDepartment(interaction.guild.id, name);
+    return interaction.reply({ embeds: [successEmbed(`Department **${name}** removed.`)], ephemeral: true });
+  }
+}

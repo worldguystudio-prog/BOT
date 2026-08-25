@@ -114,7 +114,7 @@ async function createTicket(guild, user, typeId) {
 
   await logEvent(guild, 'TICKET_OPEN', 'ORGVNUM — Ticket Opened', `<@${user.id}> opened a **${type.value}** ticket → <#${channel.id}>`, [
     { name: 'Ticket', value: `#${String(ticketId).padStart(4, '0')}`, inline: true },
-  ], config.brand.colors.accent);
+  ], config.brand.colors.accent, 'ticket');
 
   return channel;
 }
@@ -158,9 +158,12 @@ export async function closeTicket(guild, channel, closerId, options = {}) {
     ticket.id,
   ]);
 
-  // Send transcript to log channel.
+  // Send transcript to the configured transcript channel (fallback to ticket log, then main log).
+  const transcriptChannelId = getSetting(guild.id, 'ticket_transcript_channel_id', null);
   const { getLogChannel } = await import('./logging.js');
-  const logChannel = getLogChannel(guild);
+  const logChannel = transcriptChannelId
+    ? guild.channels.cache.get(transcriptChannelId)
+    : getLogChannel(guild, 'ticket');
   if (logChannel) {
     try {
       const buffer = Buffer.from(transcript, 'utf8');
@@ -173,7 +176,7 @@ export async function closeTicket(guild, channel, closerId, options = {}) {
     }
   }
 
-  await logEvent(guild, 'TICKET_CLOSE', 'ORGVNUM — Ticket Closed', `<@${closerId}> closed ticket #${String(ticket.id).padStart(4, '0')} (${ticket.type})`, [], config.brand.colors.warning);
+  await logEvent(guild, 'TICKET_CLOSE', 'ORGVNUM — Ticket Closed', `<@${closerId}> closed ticket #${String(ticket.id).padStart(4, '0')} (${ticket.type})`, [], config.brand.colors.warning, 'ticket');
 
   if (!options.reopen) {
     await channel.delete('Ticket closed').catch(() => {});

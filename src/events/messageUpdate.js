@@ -24,6 +24,7 @@ export default {
         { name: 'After', value: newContent.slice(0, 1024), inline: false },
       ],
       config.brand.colors.info,
+      'message',
     );
   },
 };

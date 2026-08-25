@@ -68,10 +68,10 @@ export default {
       /* automod optional */
     }
 
-    // Log the join.
+    // Log the join — uses member log channel (fallback to main moderation log).
     await logEvent(guild, 'MEMBER_JOIN', 'ORGVNUM — Member Joined', `<@${member.id}> (\`${member.id}\`) joined the server.`, [
       { name: 'Account', value: `Created ${time(member.user.createdAt, 'R')}`, inline: true },
       { name: 'Members', value: String(guild.memberCount), inline: true },
-    ], config.brand.colors.success);
+    ], config.brand.colors.success, 'member');
   },
 };

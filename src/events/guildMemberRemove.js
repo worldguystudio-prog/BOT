@@ -34,6 +34,7 @@ export default {
         { name: 'Departments', value: departments || 'None', inline: true },
       ],
       config.brand.colors.warning,
+      'member',
     );
   },
 };

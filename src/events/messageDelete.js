@@ -6,7 +6,6 @@ export default {
   name: Events.MessageDelete,
   async execute(client, message) {
     if (!message.guild || message.author?.bot) return;
-    // Partial messages may lack content.
     const content = message.content || '*No text content / uncached message.*';
 
     await logEvent(
@@ -21,6 +20,7 @@ export default {
         { name: 'Content', value: content.slice(0, 1024) || '*empty*', inline: false },
       ],
       config.brand.colors.warning,
+      'message',
     );
   },
 };
