@@ -67,12 +67,17 @@ export const config = {
   paths: {
     root: join(__dirname, '..', '..'),
     src: join(__dirname, '..'),
-    data: join(__dirname, '..', '..', 'data'),
-    db: join(__dirname, '..', '..', 'data', process.env.DB_NAME || 'orgvnum.db'),
+    // Data directory: respect DATA_DIR env var (for Railway persistent volumes),
+    // then fall back to /app/data (Railway default), then the repo's data/ folder.
+    data: process.env.DATA_DIR || (existsSync('/app/data') ? '/app/data' : join(__dirname, '..', '..', 'data')),
+    db: '', // set below after data is resolved
     commands: join(__dirname, 'commands'),
     events: join(__dirname, 'events'),
   },
 };
+
+// Resolve the DB path now that paths.data is set.
+config.paths.db = join(config.paths.data, process.env.DB_NAME || 'orgvnum.db');
 
 // Ensure the data directory exists at startup.
 if (!existsSync(config.paths.data)) {

@@ -9,7 +9,7 @@ import {
   PermissionFlagsBits,
 } from 'discord.js';
 import { run, get, all, getSetting } from '../database/helpers.js';
-import { brandedEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
+import { brandedEmbed, successEmbed, errorEmbed, accentEmbed } from '../utils/embeds.js';
 import { registerButton, registerModal } from '../registry.js';
 import { logEvent } from './logging.js';
 import { config } from '../config/config.js';
@@ -183,37 +183,72 @@ registerButton('application', async (interaction, _client, action, id) => {
 });
 
 /* ───────── Buttons: application panel ─────────
- * Clicking a button on the /application-panel opens the apply modal.
- * The handler is registered under a separate key ('apppanel') so it doesn't
- * collide with the review-button handler above.
+ * Clicking a button on the /application-panel starts a DM-based application
+ * session. The bot DMs the user questions one at a time and saves their answers.
+ * Falls back to a modal if the user has DMs closed.
  */
 registerButton('apppanel', async (interaction, _client, action, _id) => {
-  // action is the application type (e.g. "Recruitment").
   const type = action;
   if (!APPLICATION_TYPES.includes(type)) {
     return interaction.reply({ embeds: [errorEmbed('Unknown application type.')], ephemeral: true });
   }
-  const modal = new ModalBuilder()
-    .setCustomId(`application:apply:${type}`)
-    .setTitle(`ORGVNUM — ${type}`.slice(0, 45))
-    .addComponents(
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('discord_username').setLabel('Discord Username').setPlaceholder('Your Discord username').setStyle(TextInputStyle.Short).setRequired(true),
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('age').setLabel('Age').setPlaceholder('Your age').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(3),
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('timezone').setLabel('Timezone').setPlaceholder('Your timezone (e.g. EST)').setStyle(TextInputStyle.Short).setRequired(true),
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('experience').setLabel('Previous Experience').setPlaceholder('Describe your prior experience').setStyle(TextInputStyle.Paragraph).setRequired(false),
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('why_join').setLabel('Why ORGVNUM?').setPlaceholder('Why do you want to join ORGVNUM?').setStyle(TextInputStyle.Paragraph).setRequired(false),
-      ),
-    );
-  await interaction.showModal(modal);
+
+  // Try to start a DM session.
+  const { startDMSession, getSession } = await import('./dm-applications.js');
+  const existing = getSession(interaction.user.id);
+  if (existing) {
+    return interaction.reply({
+      embeds: [errorEmbed(`You already have an active ${existing.type} application in progress in your DMs. Please finish it first (or type \`cancel\` in your DM to abandon it).`)],
+      ephemeral: true,
+    });
+  }
+
+  // Get the review channel (where the review panel will be posted on completion).
+  const reviewChannelId = getSetting(interaction.guild.id, 'application_channel_id', null);
+
+  // Try to DM the user the first question.
+  const { QUESTION_SETS } = await import('./dm-applications.js');
+  const questions = QUESTION_SETS[type];
+  const firstQuestion = questions[0];
+
+  const dmEmbed = accentEmbed(
+    `**ORGVNUM — ${type} Application**\n\nYou're starting a ${type} application. I'll ask you ${questions.length} questions one at a time.\n\n**Instructions:**\n• Reply to each question with a single message\n• For multi-line answers, just send one message with line breaks\n• Type \`cancel\` at any time to abandon\n\n─────────────────\n\n**Question 1 of ${questions.length}:**\n${firstQuestion.label}\n\n${firstQuestion.required ? '_This question is required._' : '_This question is optional — type `skip` if you prefer not to answer._'}${firstQuestion.multiline ? '\n\n_You can send a multi-line answer._' : ''}`,
+    `${type} Application`,
+  );
+
+  try {
+    await interaction.user.send({ embeds: [dmEmbed] });
+  } catch (e) {
+    // DM failed — user has DMs closed. Fall back to the modal.
+    const modal = new ModalBuilder()
+      .setCustomId(`application:apply:${type}`)
+      .setTitle(`ORGVNUM — ${type}`.slice(0, 45))
+      .addComponents(
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('discord_username').setLabel('Discord Username').setPlaceholder('Your Discord username').setStyle(TextInputStyle.Short).setRequired(true),
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('age').setLabel('Age').setPlaceholder('Your age').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(3),
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('timezone').setLabel('Timezone').setPlaceholder('Your timezone (e.g. EST)').setStyle(TextInputStyle.Short).setRequired(true),
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('experience').setLabel('Previous Experience').setPlaceholder('Describe your prior experience').setStyle(TextInputStyle.Paragraph).setRequired(false),
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('why_join').setLabel('Why ORGVNUM?').setPlaceholder('Why do you want to join ORGVNUM?').setStyle(TextInputStyle.Paragraph).setRequired(false),
+        ),
+      );
+    return interaction.showModal(modal);
+  }
+
+  // DM succeeded — start the session.
+  startDMSession(interaction.user.id, type, interaction.guild.id, reviewChannelId);
+  await interaction.reply({
+    embeds: [successEmbed(`I've sent you a DM to start your **${type}** application. Check your DMs! If you didn't receive it, make sure your privacy settings allow DMs from server members.`)],
+    ephemeral: true,
+  });
 });
 
 export default {
