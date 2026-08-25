@@ -2,10 +2,11 @@ import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from 'discord.j
 import { getSetting, setSetting, getAllSettings, addDepartment, removeDepartment, getDepartments } from '../../database/helpers.js';
 import { successEmbed, errorEmbed, brandedEmbed } from '../../utils/embeds.js';
 import { config } from '../../config/config.js';
-import { SETTING_CATALOG, ALL_SETTINGS, PERMISSION_LEVELS } from '../../config/settings-catalog.js';
+import { SETTING_CATALOG, ALL_SETTINGS } from '../../config/settings-catalog.js';
 
-// Flatten for the reset command's choices.
-const ALL_SETTING_CHOICES = ALL_SETTINGS.map((s) => ({ name: `${s.categoryEmoji} ${s.categoryLabel} → ${s.label}`, value: s.key }));
+// Note: Discord limits string option choices to 25. We have 30 settings,
+// so /config reset takes a free-text key instead of a dropdown. Use
+// /config view to see all keys, or use /dashboard for interactive editing.
 
 export default {
   data: new SlashCommandBuilder()
@@ -20,7 +21,7 @@ export default {
       s
         .setName('reset')
         .setDescription('Clear a single setting back to its default.')
-        .addStringOption((o) => o.setName('setting').setDescription('Setting to reset').setRequired(true).addChoices(...ALL_SETTING_CHOICES)),
+        .addStringOption((o) => o.setName('setting').setDescription('Setting key to reset (e.g. log_channel_id). Use /config view to see all keys.').setRequired(true).setMaxLength(60)),
     )
 
     // ─── permissions ───────────────────────────────
@@ -268,11 +269,15 @@ async function handleView(interaction) {
 }
 
 async function handleReset(interaction) {
-  const key = interaction.options.getString('setting', true);
-  // Delete the setting row.
+  const key = interaction.options.getString('setting', true).trim();
+  // Verify it's a known setting key.
+  const setting = ALL_SETTINGS.find((s) => s.key === key);
+  if (!setting) {
+    return interaction.reply({ embeds: [errorEmbed(`Unknown setting key: \`${key}\`.\n\nUse \`/config view\` to see all valid keys, or use \`/dashboard\` for interactive editing.`)], ephemeral: true });
+  }
   const { run } = await import('../../database/helpers.js');
   run('DELETE FROM settings WHERE guild_id = ? AND key = ?', [interaction.guild.id, key]);
-  const label = ALL_SETTING_CHOICES.find((c) => c.value === key)?.name || key;
+  const label = `${setting.categoryEmoji} ${setting.categoryLabel} → ${setting.label}`;
   return interaction.reply({ embeds: [successEmbed(`**${label}** has been reset to its default.`, '✅ Setting Reset')], ephemeral: true });
 }
 
