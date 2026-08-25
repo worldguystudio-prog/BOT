@@ -176,10 +176,13 @@ function buildPermissionsView(guildId, settings) {
 
 /* ───────── Component Handlers ───────── */
 
-// Main category select → category view.
-registerSelect('dash', async (interaction, _client, action, _id) => {
+// Unified select handler — handles ALL dashboard select menus (string, channel, role).
+// (The registry only stores ONE handler per system key, so all branches must
+// live in a single function.)
+registerSelect('dash', async (interaction, _client, action, id) => {
   const guildId = interaction.guild.id;
 
+  // ─── String selects ───────────────────────────────
   if (action === 'cat') {
     const cat = interaction.values?.[0];
     if (!cat) return;
@@ -188,8 +191,8 @@ registerSelect('dash', async (interaction, _client, action, _id) => {
   }
 
   if (action === 'edit') {
-    // _id is the categoryKey; values[0] is the settingKey.
-    const categoryKey = _id;
+    // id is the categoryKey; values[0] is the settingKey.
+    const categoryKey = id;
     const settingKey = interaction.values?.[0];
     if (!settingKey) return;
     await interaction.update(buildEditView(guildId, categoryKey, settingKey));
@@ -197,7 +200,6 @@ registerSelect('dash', async (interaction, _client, action, _id) => {
   }
 
   if (action === 'permlevel') {
-    // User picked a permission level — now show a role select.
     const level = interaction.values?.[0];
     if (!level) return;
     const roleSelect = new RoleSelectMenuBuilder().setCustomId(`dash:permrole:${level}`).setPlaceholder('Select the role to map to this level…');
@@ -206,39 +208,38 @@ registerSelect('dash', async (interaction, _client, action, _id) => {
     await interaction.update({ embeds: [embed], components: [new ActionRowBuilder().addComponents(roleSelect), back] });
     return;
   }
-});
 
-// Channel select menus — save channel-type settings.
-registerSelect('dash', async (interaction, _client, action, id) => {
-  // ChannelSelect and RoleSelect also route through here with action = savechannel / saverole / permrole.
+  // ─── Channel / Role selects ───────────────────────
   if (action === 'savechannel') {
     const [categoryKey, settingKey] = id.split(':');
     const channel = interaction.values?.[0];
     if (!channel) return;
-    setSetting(interaction.guild.id, settingKey, channel);
-    await interaction.update(buildCategoryView(interaction.guild.id, categoryKey));
-    await interaction.followUp({ embeds: [successEmbed(`Setting saved.`)], ephemeral: true }).catch(() => {});
+    setSetting(guildId, settingKey, channel);
+    await interaction.update(buildCategoryView(guildId, categoryKey));
+    await interaction.followUp({ embeds: [successEmbed('Setting saved.')], ephemeral: true }).catch(() => {});
     return;
   }
+
   if (action === 'saverole') {
     const [categoryKey, settingKey] = id.split(':');
     const role = interaction.values?.[0];
     if (!role) return;
-    setSetting(interaction.guild.id, settingKey, role);
-    await interaction.update(buildCategoryView(interaction.guild.id, categoryKey));
-    await interaction.followUp({ embeds: [successEmbed(`Setting saved.`)], ephemeral: true }).catch(() => {});
+    setSetting(guildId, settingKey, role);
+    await interaction.update(buildCategoryView(guildId, categoryKey));
+    await interaction.followUp({ embeds: [successEmbed('Setting saved.')], ephemeral: true }).catch(() => {});
     return;
   }
+
   if (action === 'permrole') {
     const level = id;
     const role = interaction.values?.[0];
     if (!role) return;
-    const raw = getSetting(interaction.guild.id, 'permission_roles', '{}');
+    const raw = getSetting(guildId, 'permission_roles', '{}');
     const map = JSON.parse(raw);
     map[role] = parseInt(level, 10);
-    setSetting(interaction.guild.id, 'permission_roles', JSON.stringify(map));
-    await interaction.update(buildPermissionsView(interaction.guild.id, getAllSettings(interaction.guild.id)));
-    await interaction.followUp({ embeds: [successEmbed(`Role mapped.`)], ephemeral: true }).catch(() => {});
+    setSetting(guildId, 'permission_roles', JSON.stringify(map));
+    await interaction.update(buildPermissionsView(guildId, getAllSettings(guildId)));
+    await interaction.followUp({ embeds: [successEmbed('Role mapped.')], ephemeral: true }).catch(() => {});
     return;
   }
 });

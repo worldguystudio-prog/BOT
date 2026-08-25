@@ -23,6 +23,6 @@ export default {
   async execute(interaction) {
     const message = interaction.options.getString('message', true);
     const level = interaction.options.getString('level') || 'info';
-    await interaction.reply({ content: '@here', embeds: [buildAlert(message, level)], allowedMentions: { parse: ['everyone', 'here'] } });
+    await interaction.reply({ content: '@here', embeds: [buildAlert(message, level)], allowedMentions: { parse: ['everyone'] } });
   },
 };
