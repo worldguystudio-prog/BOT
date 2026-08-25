@@ -67,6 +67,7 @@ export function listApplications(guildId, status = null) {
 
 /**
  * Update an application's status and log the decision.
+ * If status is ACCEPTED, automatically assigns the configured accept roles.
  * @param {import('discord.js').Guild} guild - the real guild object (for log channel routing)
  */
 export function updateApplicationStatus(guild, appId, status, reviewerId, notes = null) {
@@ -90,6 +91,64 @@ export function updateApplicationStatus(guild, appId, status, reviewerId, notes 
     'application',
   ).catch(() => {});
   return getApplication(guildId, appId);
+}
+
+/**
+ * Assign the configured accept roles to a user when their application is accepted.
+ * Roles are configured per application type via the setting key:
+ *   accept_roles:<ApplicationType>  → comma-separated role IDs
+ *
+ * @param {import('discord.js').Guild} guild
+ * @param {string} userId
+ * @param {string} applicationType
+ * @returns {Promise<{assigned: string[], failed: string[]}>}
+ */
+export async function assignAcceptRoles(guild, userId, applicationType) {
+  const result = { assigned: [], failed: [] };
+  if (!guild || !userId || !applicationType) return result;
+
+  // Get the configured roles for this application type.
+  const raw = getSetting(guild.id, `accept_roles:${applicationType}`, null);
+  if (!raw) return result;
+
+  let roleIds = [];
+  try {
+    roleIds = JSON.parse(raw);
+  } catch {
+    // Maybe it's a comma-separated string.
+    roleIds = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  if (!Array.isArray(roleIds) || roleIds.length === 0) return result;
+
+  // Fetch the member.
+  const member = await guild.members.fetch(userId).catch(() => null);
+  if (!member) {
+    result.failed = roleIds;
+    return result;
+  }
+
+  // Assign each role.
+  for (const roleId of roleIds) {
+    const role = guild.roles.cache.get(roleId) || await guild.roles.fetch(roleId).catch(() => null);
+    if (!role) {
+      result.failed.push(roleId);
+      continue;
+    }
+    // Check hierarchy: bot's highest role must be above the target role.
+    if (guild.members.me?.roles?.highest?.position <= role.position) {
+      result.failed.push(roleId);
+      continue;
+    }
+    try {
+      await member.roles.add(role, `Application accepted (${applicationType})`);
+      result.assigned.push(roleId);
+    } catch (e) {
+      result.failed.push(roleId);
+      logger.error(`Could not assign role ${roleId} to ${userId}: ${e.message}`);
+    }
+  }
+
+  return result;
 }
 
 /** Build the interactive review panel for an application. */
@@ -170,15 +229,32 @@ registerButton('application', async (interaction, _client, action, id) => {
   if (!status) return;
 
   updateApplicationStatus(interaction.guild, app.application_id, status, interaction.user.id);
+
+  // If accepted, assign the configured accept roles for this application type.
+  let roleMsg = '';
+  if (status === STATUSES.ACCEPTED) {
+    const roleResult = await assignAcceptRoles(interaction.guild, app.user_id, app.type);
+    if (roleResult.assigned.length > 0) {
+      roleMsg = `\n\n✅ **Roles assigned:** ${roleResult.assigned.map((r) => `<@&${r}>`).join(', ')}`;
+    }
+    if (roleResult.failed.length > 0) {
+      roleMsg += `\n\n⚠️ **Failed to assign:** ${roleResult.failed.length} role(s) — check bot hierarchy/permissions.`;
+    }
+  }
+
   await interaction.update({
-    embeds: [brandedEmbed(`Application #${app.application_id} updated to **${status}** by <@${interaction.user.id}>.`, 'ORGVNUM — Application Updated')],
+    embeds: [brandedEmbed(`Application #${app.application_id} updated to **${status}** by <@${interaction.user.id}>.${roleMsg}`, 'ORGVNUM — Application Updated')],
     components: [],
   });
 
   // DM the applicant.
   try {
     const user = await interaction.client.users.fetch(app.user_id);
-    await user.send({ embeds: [brandedEmbed(`Your application **#${app.application_id}** has been updated.\n\nNew status: **${status}**\nReviewer: ${interaction.user.tag}`)] }).catch(() => {});
+    let dmMsg = `Your application **#${app.application_id}** has been updated.\n\nNew status: **${status}**\nReviewer: ${interaction.user.tag}`;
+    if (status === STATUSES.ACCEPTED && roleMsg) {
+      dmMsg += roleMsg;
+    }
+    await user.send({ embeds: [brandedEmbed(dmMsg)] }).catch(() => {});
   } catch { /* ignore */ }
 });
 
