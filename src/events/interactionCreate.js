@@ -21,9 +21,10 @@ export default {
         await handleAutocomplete(client, interaction);
       } else if (interaction.isButton()) {
         await handleButton(client, interaction);
-      } else if (interaction.isSelectMenu()) {
-        // isSelectMenu() catches ALL select types: string, channel, role,
-        // user, and mentionable. (isStringSelectMenu() only catches string.)
+      } else if (interaction.isMessageComponent() && !interaction.isButton()) {
+        // Any non-button message component = a select menu (string, channel,
+        // role, user, or mentionable). This works across all discord.js v14
+        // versions and avoids the deprecated isSelectMenu().
         await handleSelectMenu(client, interaction);
       } else if (interaction.isModalSubmit()) {
         await handleModal(client, interaction);

@@ -53,8 +53,8 @@ export default {
       g
         .setName('welcome')
         .setDescription('Configure the welcome system.')
-        .addSubcommand((s) => s.setName('channel').setDescription('Where welcome messages are sent.').addChannelOption((o) => o.setName('channel').setDescription('Welcome channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('leave_channel').setDescription('Where leave messages are logged.').addChannelOption((o) => o.setName('channel').setDescription('Leave log channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('channel').setDescription('Where welcome messages are sent.').addChannelOption((o) => o.setName('channel').setDescription('Welcome channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('leave_channel').setDescription('Where leave messages are logged.').addChannelOption((o) => o.setName('channel').setDescription('Leave log channel').setRequired(true)))
         .addSubcommand((s) => s.setName('message').setDescription('Custom welcome message (use {user} for mention).').addStringOption((o) => o.setName('text').setDescription('Welcome message text').setRequired(true).setMaxLength(1000)))
         .addSubcommand((s) => s.setName('role').setDescription('Role auto-assigned on join.').addRoleOption((o) => o.setName('role').setDescription('Default role').setRequired(true))),
     )
@@ -64,11 +64,11 @@ export default {
       g
         .setName('logs')
         .setDescription('Configure log channels.')
-        .addSubcommand((s) => s.setName('moderation').setDescription('Main moderation log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('messages').setDescription('Message edit/delete log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('members').setDescription('Member join/leave log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('tickets').setDescription('Ticket log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('applications').setDescription('Application log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('moderation').setDescription('Main moderation log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('messages').setDescription('Message edit/delete log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('members').setDescription('Member join/leave log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('tickets').setDescription('Ticket log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('applications').setDescription('Application log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true))),
     )
 
     // ─── tickets ───────────────────────────────────
@@ -76,9 +76,9 @@ export default {
       g
         .setName('tickets')
         .setDescription('Configure the ticket system.')
-        .addSubcommand((s) => s.setName('category').setDescription('Category new tickets are created under.').addChannelOption((o) => o.setName('category').setDescription('Ticket category').setRequired(true).addChannelTypes(ChannelType.GuildCategory)))
-        .addSubcommand((s) => s.setName('panel').setDescription('Channel where /ticket-panel posts the panel.').addChannelOption((o) => o.setName('channel').setDescription('Panel channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('transcript').setDescription('Channel where transcripts are sent.').addChannelOption((o) => o.setName('channel').setDescription('Transcript channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('category').setDescription('Category new tickets are created under.').addChannelOption((o) => o.setName('category').setDescription('Ticket category').setRequired(true)))
+        .addSubcommand((s) => s.setName('panel').setDescription('Channel where /ticket-panel posts the panel.').addChannelOption((o) => o.setName('channel').setDescription('Panel channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('transcript').setDescription('Channel where transcripts are sent.').addChannelOption((o) => o.setName('channel').setDescription('Transcript channel').setRequired(true)))
         .addSubcommand((s) => s.setName('staff').setDescription('Staff role that gets ticket access.').addRoleOption((o) => o.setName('role').setDescription('Staff role').setRequired(true)))
         .addSubcommand((s) => s.setName('max').setDescription('Max open tickets per user.').addIntegerOption((o) => o.setName('amount').setDescription('Max tickets (1-10)').setRequired(true).setMinValue(1).setMaxValue(10))),
     )
@@ -88,7 +88,7 @@ export default {
       g
         .setName('applications')
         .setDescription('Configure the application system.')
-        .addSubcommand((s) => s.setName('channel').setDescription('Where application review panels are posted.').addChannelOption((o) => o.setName('channel').setDescription('Application review channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
+        .addSubcommand((s) => s.setName('channel').setDescription('Where application review panels are posted.').addChannelOption((o) => o.setName('channel').setDescription('Application review channel').setRequired(true)))
         .addSubcommand((s) => s.setName('recruiter').setDescription('Recruiter role (can review applications).').addRoleOption((o) => o.setName('role').setDescription('Recruiter role').setRequired(true))),
     )
 
@@ -97,8 +97,8 @@ export default {
       g
         .setName('recruitment')
         .setDescription('Configure recruitment & waitlist channels.')
-        .addSubcommand((s) => s.setName('channel').setDescription('Recruitment info channel.').addChannelOption((o) => o.setName('channel').setDescription('Recruitment channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('waitlist').setDescription('Waitlist channel.').addChannelOption((o) => o.setName('channel').setDescription('Waitlist channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('channel').setDescription('Recruitment info channel.').addChannelOption((o) => o.setName('channel').setDescription('Recruitment channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('waitlist').setDescription('Waitlist channel.').addChannelOption((o) => o.setName('channel').setDescription('Waitlist channel').setRequired(true))),
     )
 
     // ─── roleplay ─────────────────────────────────
@@ -106,9 +106,9 @@ export default {
       g
         .setName('roleplay')
         .setDescription('Configure roleplay channels.')
-        .addSubcommand((s) => s.setName('dispatch').setDescription('Dispatch channel.').addChannelOption((o) => o.setName('channel').setDescription('Dispatch channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('scene').setDescription('Scene channel.').addChannelOption((o) => o.setName('channel').setDescription('Scene channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('log').setDescription('Roleplay log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('dispatch').setDescription('Dispatch channel.').addChannelOption((o) => o.setName('channel').setDescription('Dispatch channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('scene').setDescription('Scene channel.').addChannelOption((o) => o.setName('channel').setDescription('Scene channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('log').setDescription('Roleplay log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true))),
     )
 
     // ─── economy ──────────────────────────────────
@@ -117,7 +117,7 @@ export default {
         .setName('economy')
         .setDescription('Configure the points economy.')
         .addSubcommand((s) => s.setName('enable').setDescription('Enable or disable the economy.').addBooleanOption((o) => o.setName('enabled').setDescription('True = on, False = off').setRequired(true)))
-        .addSubcommand((s) => s.setName('channel').setDescription('Economy display channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('channel').setDescription('Economy display channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true))),
     )
 
     // ─── shifts ───────────────────────────────────
@@ -125,7 +125,7 @@ export default {
       g
         .setName('shifts')
         .setDescription('Configure the shift system.')
-        .addSubcommand((s) => s.setName('channel').setDescription('Shift log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('channel').setDescription('Shift log channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true))),
     )
 
     // ─── training ─────────────────────────────────
@@ -133,8 +133,8 @@ export default {
       g
         .setName('training')
         .setDescription('Configure training & events.')
-        .addSubcommand((s) => s.setName('channel').setDescription('Training/event channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true).addChannelTypes(ChannelType.GuildText)))
-        .addSubcommand((s) => s.setName('log').setDescription('Training log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true).addChannelTypes(ChannelType.GuildText))),
+        .addSubcommand((s) => s.setName('channel').setDescription('Training/event channel.').addChannelOption((o) => o.setName('channel').setDescription('Channel').setRequired(true)))
+        .addSubcommand((s) => s.setName('log').setDescription('Training log channel.').addChannelOption((o) => o.setName('channel').setDescription('Log channel').setRequired(true))),
     )
 
     // ─── roles ────────────────────────────────────
