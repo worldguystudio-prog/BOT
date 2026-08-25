@@ -1,7 +1,6 @@
-import { time } from 'discord.js';
 import { addWarning, getWarnings, clearWarning, clearAllWarnings, nextCaseNumber, createCase } from '../database/helpers.js';
 import { logModeration } from './logging.js';
-import { sendDM } from '../utils/dm.js';
+import { sendModDM } from '../utils/dm.js';
 import logger from '../utils/logger.js';
 
 /**

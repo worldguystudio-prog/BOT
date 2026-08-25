@@ -26,7 +26,7 @@ export default {
     if (!(await assertCanModerate(interaction, member))) return;
 
     const mutedRoleId = getSetting(interaction.guild.id, 'muted_role_id', null);
-    if (!mutedRoleId) return interaction.reply({ embeds: [errorEmbed('No muted role configured. Use `/config permissions` or set `muted_role_id` first. (You can also use `/timeout` for native Discord timeouts.)')], ephemeral: true });
+    if (!mutedRoleId) return interaction.reply({ embeds: [errorEmbed('No muted role configured. Use `/config roles muted` to set one, or use `/timeout` for native Discord timeouts.')], ephemeral: true });
 
     const role = await interaction.guild.roles.fetch(mutedRoleId).catch(() => null);
     if (!role) return interaction.reply({ embeds: [errorEmbed('The configured muted role no longer exists.')], ephemeral: true });
@@ -34,7 +34,11 @@ export default {
       return interaction.reply({ embeds: [errorEmbed('My role must be above the muted role.')], ephemeral: true });
     }
 
-    await member.roles.add(role, reason).catch((e) => interaction.reply({ embeds: [errorEmbed(`Could not apply mute: ${e.message}`)], ephemeral: true }));
+    try {
+      await member.roles.add(role, reason);
+    } catch (e) {
+      return interaction.reply({ embeds: [errorEmbed(`Could not apply mute: ${e.message}`)], ephemeral: true });
+    }
 
     let duration = null;
     if (durStr) {

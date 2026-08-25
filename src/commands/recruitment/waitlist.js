@@ -94,7 +94,7 @@ export default {
 
     if (sub === 'promote') {
       const id = interaction.options.getString('id', true);
-      const entry = promoteWaitlist(interaction.guild.id, id, interaction.user.id);
+      const entry = promoteWaitlist(interaction.guild, id, interaction.user.id);
       if (!entry) return interaction.reply({ embeds: [errorEmbed('Entry not found.')], ephemeral: true });
       return interaction.reply({ embeds: [successEmbed(`Promoted waitlist entry #${entry.id} for <@${entry.user_id}>.`, 'ORGVNUM — Promoted')] });
     }

@@ -7,11 +7,12 @@ import {
   ModalBuilder,
   ChannelType,
 } from 'discord.js';
-import { run, get, all } from '../database/helpers.js';
+import { run, get, all, getSetting } from '../database/helpers.js';
 import { brandedEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
 import { registerButton, registerModal } from '../registry.js';
 import { logEvent } from './logging.js';
 import { config } from '../config/config.js';
+import { PermissionFlagsBits } from 'discord.js';
 import logger from '../utils/logger.js';
 
 export const APPLICATION_TYPES = [
@@ -64,7 +65,12 @@ export function listApplications(guildId, status = null) {
   return rows.map((r) => ({ ...r, data: r.data ? JSON.parse(r.data) : {} }));
 }
 
-export function updateApplicationStatus(guildId, appId, status, reviewerId, notes = null) {
+/**
+ * Update an application's status and log the decision.
+ * @param {import('discord.js').Guild} guild - the real guild object (for log channel routing)
+ */
+export function updateApplicationStatus(guild, appId, status, reviewerId, notes = null) {
+  const guildId = guild.id;
   const app = getApplication(guildId, appId);
   if (!app) return null;
   run('UPDATE applications SET status = ?, reviewer_id = ?, reviewer_notes = COALESCE(?, reviewer_notes), decided_at = ? WHERE id = ?', [
@@ -75,13 +81,13 @@ export function updateApplicationStatus(guildId, appId, status, reviewerId, note
     app.id,
   ]);
   logEvent(
-    // We don't have the guild object here; the command/system that calls this should also log via Discord.
-    { id: guildId },
+    guild,
     'APPLICATION',
     'ORGVNUM — Application Decision',
-    `Application #${app.application_id} updated to **${status}**.`,
-    [],
+    `Application #${app.application_id} updated to **${status}** by <@${reviewerId}>.`,
+    [{ name: 'Applicant', value: `<@${app.user_id}>`, inline: true }],
     config.brand.colors.accent,
+    'application',
   ).catch(() => {});
   return getApplication(guildId, appId);
 }
@@ -129,7 +135,7 @@ registerModal('application', async (interaction, client, action, type) => {
   });
 
   // Post review panel to configured application channel.
-  const channelId = await getSetting(interaction.guild.id, 'application_channel_id', null);
+  const channelId = getSetting(interaction.guild.id, 'application_channel_id', null);
   if (channelId) {
     const channel = interaction.guild.channels.cache.get(channelId);
     if (channel) {
@@ -145,8 +151,8 @@ registerButton('application', async (interaction, _client, action, id) => {
   if (!app) return interaction.reply({ embeds: [errorEmbed('Application not found.')], ephemeral: true });
 
   // Permission check: only staff with Manage Messages or configured recruiter role.
-  if (!interaction.member?.permissions?.has(16n /* ManageMessages */)) {
-    const recruiter = await getSetting(interaction.guild.id, 'recruiter_role_id', null);
+  if (!interaction.member?.permissions?.has(PermissionFlagsBits.ManageMessages)) {
+    const recruiter = getSetting(interaction.guild.id, 'recruiter_role_id', null);
     if (recruiter && !interaction.member?.roles?.cache?.has(recruiter)) {
       return interaction.reply({ embeds: [errorEmbed('Only authorized reviewers may decide applications.')], ephemeral: true });
     }
@@ -162,7 +168,7 @@ registerButton('application', async (interaction, _client, action, id) => {
   const status = statusMap[action];
   if (!status) return;
 
-  updateApplicationStatus(interaction.guild.id, app.application_id, status, interaction.user.id);
+  updateApplicationStatus(interaction.guild, app.application_id, status, interaction.user.id);
   await interaction.update({
     embeds: [brandedEmbed(`Application #${app.application_id} updated to **${status}** by <@${interaction.user.id}>.`, 'ORGVNUM — Application Updated')],
     components: [],

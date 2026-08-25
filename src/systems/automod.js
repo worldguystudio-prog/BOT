@@ -1,5 +1,6 @@
 import { getAutomodConfig, setAutomodConfig } from '../database/helpers.js';
 import { config } from '../config/config.js';
+import { PermissionFlagsBits } from 'discord.js';
 import logger from '../utils/logger.js';
 
 /** Per-guild in-memory spam/flood state. */
@@ -41,7 +42,7 @@ export async function runAutomod(message) {
   const member = message.member;
   if (!member) return;
   // Staff are exempt.
-  if (member.permissions?.has(16n /* ManageMessages */)) return;
+  if (member.permissions?.has(PermissionFlagsBits.ManageMessages)) return;
 
   const content = message.content || '';
   const now = Date.now();

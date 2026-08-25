@@ -27,14 +27,12 @@ export default {
     if (config.guildId && clearGlobal) {
       try {
         await rest.put(Routes.applicationCommands(clientId), { body: [] });
-        await interaction.editReply({ embeds: [successEmbed(`Cleared global commands (removing duplicates) and registered **${commands.size}** guild commands.`)] });
-        return;
       } catch (e) {
-        // Fall through to normal registration if clearing failed.
+        // Fall through to normal registration even if clearing failed.
       }
     }
 
     await restPutCommands([...commands.values()], clientId);
-    await interaction.editReply({ embeds: [successEmbed(`Synced **${commands.size}** commands.`)] });
+    await interaction.editReply({ embeds: [successEmbed(`Synced **${commands.size}** commands (global cleared: ${config.guildId && clearGlobal ? 'yes' : 'no'}).`)] });
   },
 };

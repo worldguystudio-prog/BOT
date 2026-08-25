@@ -53,23 +53,29 @@ export function getWaitlistEntry(guildId, userIdOrId) {
   ]);
 }
 
-export function setWaitlistStatus(guildId, userIdOrId, status, staffId = null) {
+/**
+ * Update a waitlist entry's status and log the decision.
+ * @param {import('discord.js').Guild} guild - the real guild object (for log channel routing)
+ */
+export function setWaitlistStatus(guild, userIdOrId, status, staffId = null) {
+  const guildId = guild.id;
   const entry = getWaitlistEntry(guildId, userIdOrId);
   if (!entry) return null;
   run('UPDATE waitlist SET status = ? WHERE id = ?', [status, entry.id]);
   logEvent(
-    { id: guildId },
+    guild,
     'WAITLIST',
     'ORGVNUM — Waitlist Updated',
     `<@${entry.user_id}> waitlist entry updated to **${status}**${staffId ? ` by <@${staffId}>` : ''}.`,
     [],
     config.brand.colors.accent,
+    'application',
   ).catch(() => {});
   return getWaitlistEntry(guildId, entry.id);
 }
 
-export function promoteWaitlist(guildId, userIdOrId, staffId) {
-  return setWaitlistStatus(guildId, userIdOrId, 'PROMOTED', staffId);
+export function promoteWaitlist(guild, userIdOrId, staffId) {
+  return setWaitlistStatus(guild, userIdOrId, 'PROMOTED', staffId);
 }
 
 export function waitlistEmbed(entry) {

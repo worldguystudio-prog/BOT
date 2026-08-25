@@ -22,7 +22,11 @@ export default {
     const mutedRoleId = getSetting(interaction.guild.id, 'muted_role_id', null);
     if (!mutedRoleId) return interaction.reply({ embeds: [errorEmbed('No muted role is configured.')], ephemeral: true });
 
-    await member.roles.remove(mutedRoleId, reason || 'Unmute').catch((e) => interaction.reply({ embeds: [errorEmbed(`Could not remove mute: ${e.message}`)], ephemeral: true }));
+    try {
+      await member.roles.remove(mutedRoleId, reason || 'Unmute');
+    } catch (e) {
+      return interaction.reply({ embeds: [errorEmbed(`Could not remove mute: ${e.message}`)], ephemeral: true });
+    }
     const caseNumber = nextCaseNumber(interaction.guild.id);
     createCase({ guildId: interaction.guild.id, caseNumber, type: 'UNMUTE', userId: user.id, moderatorId: interaction.user.id, reason });
     await logModeration(interaction.guild, { action: 'UNMUTE', user, moderator: interaction.member, reason, caseId: caseNumber });

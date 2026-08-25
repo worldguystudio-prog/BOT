@@ -93,7 +93,7 @@ export function buildCategoryView(guildId, categoryKey) {
   });
 
   const select = new StringSelectMenuBuilder().setCustomId(`dash:edit:${categoryKey}`).setPlaceholder('Choose a setting to edit…').addOptions(options);
-  const back = new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('←').setStyle(ButtonStyle.Secondary);
+  const back = new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('⬅️').setStyle(ButtonStyle.Secondary);
 
   return {
     embeds: [embed],
@@ -119,7 +119,7 @@ export function buildEditView(guildId, categoryKey, settingKey) {
     'ORGVNUM — Dashboard',
   );
 
-  const back = new ButtonBuilder().setCustomId(`dash:back:${categoryKey}`).setLabel('Back').setEmoji('←').setStyle(ButtonStyle.Secondary);
+  const back = new ButtonBuilder().setCustomId(`dash:back:${categoryKey}`).setLabel('Back').setEmoji('⬅️').setStyle(ButtonStyle.Secondary);
   const rows = [new ActionRowBuilder().addComponents(back)];
 
   if (item.type === 'channel') {
@@ -147,7 +147,7 @@ function buildDepartmentsView(guildId) {
     `🏢 **Departments**\n\n${depts.length ? depts.map((d) => `• ${d.name}${d.role_id ? ` → <@&${d.role_id}>` : ''}`).join('\n') : '— none configured —'}\n\nUse \`/config departments add\` to add departments.`,
     'ORGVNUM — Dashboard',
   );
-  const back = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('←').setStyle(ButtonStyle.Secondary));
+  const back = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('⬅️').setStyle(ButtonStyle.Secondary));
   return { embeds: [embed], components: [back] };
 }
 
@@ -166,7 +166,7 @@ function buildPermissionsView(guildId, settings) {
 
   const options = PERMISSION_LEVELS.map((p) => ({ label: `${p.label} (${p.value})`, value: p.value, description: `Level ${p.value}` }));
   const levelSelect = new StringSelectMenuBuilder().setCustomId('dash:permlevel:').setPlaceholder('Pick a permission level…').addOptions(options);
-  const back = new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('←').setStyle(ButtonStyle.Secondary);
+  const back = new ButtonBuilder().setCustomId('dash:back:').setLabel('Back').setEmoji('⬅️').setStyle(ButtonStyle.Secondary);
 
   return {
     embeds: [embed],
@@ -203,7 +203,7 @@ registerSelect('dash', async (interaction, _client, action, id) => {
     const level = interaction.values?.[0];
     if (!level) return;
     const roleSelect = new RoleSelectMenuBuilder().setCustomId(`dash:permrole:${level}`).setPlaceholder('Select the role to map to this level…');
-    const back = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('dash:back:permissions').setLabel('Back').setEmoji('←').setStyle(ButtonStyle.Secondary));
+    const back = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('dash:back:permissions').setLabel('Back').setEmoji('⬅️').setStyle(ButtonStyle.Secondary));
     const embed = brandedEmbed(`Map a role to permission level **${PERMISSION_LEVELS.find((p) => p.value === level)?.label || level}** (${level}).`);
     await interaction.update({ embeds: [embed], components: [new ActionRowBuilder().addComponents(roleSelect), back] });
     return;

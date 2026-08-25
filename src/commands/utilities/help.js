@@ -51,16 +51,25 @@ export default {
       selectHandlers.help = async (i) => {
         const cat = i.values?.[0];
         const c = CATEGORIES[cat];
-        if (!c) return i.update({ embeds: [accentEmbed('Unknown category.')] });
+        if (!c) {
+          await i.update({ embeds: [accentEmbed('Unknown category.')], components: [row, buttons] });
+          return;
+        }
         const cmds = [...client.commands.values()].filter((cmd) => cmd.data?.name && isCategoryFor(cmd, cat));
         const lines = cmds.length ? cmds.map((cmd) => `• \`/${cmd.data.name}\` — ${cmd.data.description}`) : ['No commands registered in this category yet.'];
-        await i.update({ embeds: [brandedEmbed(`**${c.emoji} ${c.label}**\n\n${c.desc}\n\n**Commands (${cmds.length})**\n${lines.join('\n')}`, 'ORGVNUM — Help')] });
+        await i.update({
+          embeds: [brandedEmbed(`**${c.emoji} ${c.label}**\n\n${c.desc}\n\n**Commands (${cmds.length})**\n${lines.join('\n')}`, 'ORGVNUM — Help')],
+          components: [row, buttons],
+        });
       };
     }
     if (!buttonHandlers.help) {
       buttonHandlers.help = async (i) => {
         const count = client.commands.size;
-        await i.update({ embeds: [brandedEmbed(`**ORGVNUM Overview**\n\n• **${count}** commands loaded\n• ${Object.keys(CATEGORIES).length} categories\n• Modular SQLite-backed systems\n\nUse the menu to browse commands.`, 'ORGVNUM — Overview')] });
+        await i.update({
+          embeds: [brandedEmbed(`**ORGVNUM Overview**\n\n• **${count}** commands loaded\n• ${Object.keys(CATEGORIES).length} categories\n• Modular SQLite-backed systems\n\nUse the menu to browse commands.`, 'ORGVNUM — Overview')],
+          components: [row, buttons],
+        });
       };
     }
   },
