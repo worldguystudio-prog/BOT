@@ -16,6 +16,17 @@ export default {
     // ─── view ───────────────────────────────────────
     .addSubcommand((s) => s.setName('view').setDescription('View the full ORGVNUM configuration.'))
 
+    // ─── export ─────────────────────────────────────
+    .addSubcommand((s) => s.setName('export').setDescription('Export all settings as a backup file you can save and restore later.'))
+
+    // ─── import ─────────────────────────────────────
+    .addSubcommand((s) =>
+      s
+        .setName('import')
+        .setDescription('Restore settings from a previously exported backup file.')
+        .addAttachmentOption((o) => o.setName('file').setDescription('The exported .json backup file').setRequired(true)),
+    )
+
     // ─── reset ─────────────────────────────────────
     .addSubcommand((s) =>
       s
@@ -172,6 +183,10 @@ export default {
     if (!subcommandGroup) {
       // /config view
       if (subcommand === 'view') return handleView(interaction);
+      // /config export
+      if (subcommand === 'export') return handleExport(interaction);
+      // /config import
+      if (subcommand === 'import') return handleImport(interaction);
       // /config reset
       if (subcommand === 'reset') return handleReset(interaction);
       // /config permissions
@@ -267,6 +282,80 @@ async function handleView(interaction) {
   return interaction.reply({
     embeds: [brandedEmbed('**ORGVNUM — Full Configuration**\n\nAll settings below are configurable via the `/config` subcommands. Changes take effect immediately.', 'ORGVNUM — Configuration').addFields(fields)],
     ephemeral: true,
+  });
+}
+
+async function handleExport(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+  const settings = getAllSettings(interaction.guild.id);
+  const depts = getDepartments(interaction.guild.id);
+
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    guildId: interaction.guild.id,
+    guildName: interaction.guild.name,
+    settings,
+    departments: depts,
+  };
+
+  const json = JSON.stringify(backup, null, 2);
+  const buffer = Buffer.from(json, 'utf-8');
+  const filename = `orgvnum-config-${interaction.guild.id}-${Date.now()}.json`;
+
+  try {
+    await interaction.editReply({
+      embeds: [successEmbed(`Exported **${Object.keys(settings).length}** settings and **${depts.length}** departments.\n\nDownload the file below. To restore later, use \`/config import\` and upload this file.`)],
+      files: [{ attachment: buffer, name: filename }],
+    });
+  } catch (e) {
+    await interaction.editReply({ embeds: [errorEmbed(`Export failed: ${e.message}`)] });
+  }
+}
+
+async function handleImport(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+  const attachment = interaction.options.getAttachment('file', true);
+
+  // Verify it's a JSON file.
+  if (!attachment.name?.endsWith('.json') && attachment.contentType !== 'application/json') {
+    return interaction.editReply({ embeds: [errorEmbed('Please upload a `.json` file (the one you got from `/config export`).')] });
+  }
+
+  // Download and parse the file.
+  let backup;
+  try {
+    const res = await fetch(attachment.url);
+    const text = await res.text();
+    backup = JSON.parse(text);
+  } catch (e) {
+    return interaction.editReply({ embeds: [errorEmbed(`Could not read the file: ${e.message}`)] });
+  }
+
+  if (!backup.settings) {
+    return interaction.editReply({ embeds: [errorEmbed('This doesn\'t look like a valid ORGVNUM config backup file.')] });
+  }
+
+  // Restore settings.
+  let restored = 0;
+  for (const [key, value] of Object.entries(backup.settings)) {
+    setSetting(interaction.guild.id, key, value);
+    restored++;
+  }
+
+  // Restore departments.
+  let deptsRestored = 0;
+  if (Array.isArray(backup.departments)) {
+    for (const dept of backup.departments) {
+      if (dept.name) {
+        addDepartment(interaction.guild.id, dept.name, dept.role_id || null, dept.description || null);
+        deptsRestored++;
+      }
+    }
+  }
+
+  await interaction.editReply({
+    embeds: [successEmbed(`✅ Config restored!\n\n**Settings:** ${restored} restored\n**Departments:** ${deptsRestored} restored\n**Backup from:** ${backup.exportedAt ? `<t:${Math.floor(new Date(backup.exportedAt).getTime() / 1000)}:R>` : 'unknown date'}\n\nAll changes take effect immediately.`)],
   });
 }
 

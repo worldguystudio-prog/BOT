@@ -15,6 +15,7 @@ const GUIDE_LABELS = {
   roleplay: 'Roleplay & Personnel',
   shifts: 'Shifts & Activity',
   economy: 'Economy & Points',
+  tryouts: 'Joining ORGVNUM (Tryouts)',
   all: 'All Guides (posts every guide in sequence)',
 };
 
@@ -47,7 +48,7 @@ export default {
     try {
       if (guideKey === 'all') {
         // Post every guide in order.
-        const ordered = ['overview', 'owner', 'directorate', 'moderators', 'recruiters', 'trainers', 'staff', 'tickets', 'roleplay', 'shifts', 'economy'];
+        const ordered = ['overview', 'owner', 'directorate', 'moderators', 'recruiters', 'trainers', 'staff', 'tickets', 'roleplay', 'shifts', 'economy', 'tryouts'];
         let posted = 0;
         for (const key of ordered) {
           const embeds = getGuideEmbeds(key);
