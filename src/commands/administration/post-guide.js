@@ -5,8 +5,23 @@ import { fileURLToPath } from 'node:url';
 import { brandedEmbed, successEmbed, errorEmbed } from '../../utils/embeds.js';
 import { config } from '../../config/config.js';
 
+// Resolve the guides directory robustly. Railway/PaaS hosts sometimes run
+// the bot from /app instead of the repo root, so we check multiple candidates.
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const GUIDES_DIR = join(__dirname, '..', '..', 'guides');
+const CANDIDATE_DIRS = [
+  join(__dirname, '..', '..', 'guides'),                          // src/commands/administration/ → ../../guides
+  join(process.cwd(), 'guides'),                                 // cwd/guides (Railway /app/guides)
+  join(__dirname, '..', '..', '..', 'guides'),                   // one more up, just in case
+  '/app/guides',                                                 // Railway default
+];
+
+let GUIDES_DIR = null;
+for (const candidate of CANDIDATE_DIRS) {
+  if (existsSync(candidate)) {
+    GUIDES_DIR = candidate;
+    break;
+  }
+}
 
 // Map of guide keys → file names + friendly labels.
 const GUIDE_MAP = {
@@ -55,16 +70,26 @@ export default {
 
     await interaction.deferReply({ ephemeral: true });
 
+    // If guides directory wasn't found at startup, bail with a helpful message.
+    if (!GUIDES_DIR) {
+      return interaction.editReply({
+        embeds: [errorEmbed(
+          `Guides folder not found.\n\nChecked:\n${CANDIDATE_DIRS.map((d) => `• \`${d}\``).join('\n')}\n\nMake sure the \`guides/\` folder is included in the deploy. If you're on Railway, the folder should be cloned from GitHub automatically.`,
+        )],
+      });
+    }
+
     try {
       if (guideKey === 'all') {
-        // Post every guide in order.
         const ordered = ['overview', 'owner', 'directorate', 'moderators', 'recruiters', 'trainers', 'staff', 'tickets', 'roleplay', 'shifts', 'economy'];
+        let posted = 0;
         for (const key of ordered) {
           const g = GUIDE_MAP[key];
           if (!g?.file) continue;
           await postGuideFile(targetChannel, g.file, g.label);
+          posted++;
         }
-        await interaction.editReply({ embeds: [successEmbed(`Posted all ${ordered.length} guides to ${targetChannel}.`)] });
+        await interaction.editReply({ embeds: [successEmbed(`Posted all ${posted} guides to ${targetChannel}.`)] });
       } else {
         const count = await postGuideFile(targetChannel, guide.file, guide.label);
         await interaction.editReply({ embeds: [successEmbed(`Posted **${guide.label}** to ${targetChannel} (${count} message${count === 1 ? '' : 's'}).`)] });
@@ -83,17 +108,10 @@ export default {
 async function postGuideFile(channel, filename, label) {
   const filepath = join(GUIDES_DIR, filename);
   if (!existsSync(filepath)) {
-    throw new Error(`Guide file not found: ${filename}. Make sure the guides/ folder is deployed with the bot.`);
+    throw new Error(`Guide file not found: ${filename} (looked in ${GUIDES_DIR})`);
   }
 
   let raw = readFileSync(filepath, 'utf-8');
-
-  // Convert the ASCII formatting to Discord markdown:
-  // 1. Strip the top/bottom === borders, replace with a branded embed header.
-  // 2. Remove --- separator lines (they look messy in Discord).
-  // 3. Convert ALL-CAPS section headers (lines surrounded by blank lines)
-  //    to bold.
-  // 4. Keep • bullets and **bold** as-is (Discord renders them).
 
   // Remove the === border lines (lines of only = characters).
   raw = raw.replace(/^={3,}$/gm, '');
@@ -104,15 +122,13 @@ async function postGuideFile(channel, filename, label) {
   const headerEmbed = brandedEmbed(`**${label}**\n\nA plain-English guide for ORGVNUM staff.`, 'ORGVNUM — Staff Guide');
   await channel.send({ embeds: [headerEmbed] });
 
-  // Split the content into chunks under 1900 chars (leaving room for formatting).
-  // Split on double-newlines (paragraph boundaries) to avoid cutting mid-sentence.
+  // Split into chunks under 1900 chars at paragraph boundaries.
   const paragraphs = raw.split(/\n\n+/).filter((p) => p.trim().length > 0);
 
   const chunks = [];
   let current = '';
   for (const para of paragraphs) {
     const trimmed = para.trim();
-    // If adding this paragraph would exceed 1900 chars, flush current and start new.
     if ((current + '\n\n' + trimmed).length > 1900) {
       if (current) chunks.push(current);
       current = trimmed;
@@ -122,12 +138,10 @@ async function postGuideFile(channel, filename, label) {
   }
   if (current) chunks.push(current);
 
-  // Post each chunk as a plain message (Discord renders the markdown).
   for (const chunk of chunks) {
     await channel.send({ content: chunk });
-    // Small delay to avoid rate limits.
     await new Promise((r) => setTimeout(r, 300));
   }
 
-  return chunks.length + 1; // +1 for the header embed
+  return chunks.length + 1;
 }
