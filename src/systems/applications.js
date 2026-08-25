@@ -6,13 +6,13 @@ import {
   TextInputStyle,
   ModalBuilder,
   ChannelType,
+  PermissionFlagsBits,
 } from 'discord.js';
 import { run, get, all, getSetting } from '../database/helpers.js';
 import { brandedEmbed, successEmbed, errorEmbed } from '../utils/embeds.js';
 import { registerButton, registerModal } from '../registry.js';
 import { logEvent } from './logging.js';
 import { config } from '../config/config.js';
-import { PermissionFlagsBits } from 'discord.js';
 import logger from '../utils/logger.js';
 
 export const APPLICATION_TYPES = [
@@ -179,6 +179,40 @@ registerButton('application', async (interaction, _client, action, id) => {
     const user = await interaction.client.users.fetch(app.user_id);
     await user.send({ embeds: [brandedEmbed(`Your application **#${app.application_id}** has been updated.\n\nNew status: **${status}**\nReviewer: ${interaction.user.tag}`)] }).catch(() => {});
   } catch { /* ignore */ }
+});
+
+/* ───────── Buttons: application panel ─────────
+ * Clicking a button on the /application-panel opens the apply modal.
+ * The handler is registered under a separate key ('apppanel') so it doesn't
+ * collide with the review-button handler above.
+ */
+registerButton('apppanel', async (interaction, _client, action, _id) => {
+  // action is the application type (e.g. "Recruitment").
+  const type = action;
+  if (!APPLICATION_TYPES.includes(type)) {
+    return interaction.reply({ embeds: [errorEmbed('Unknown application type.')], ephemeral: true });
+  }
+  const modal = new ModalBuilder()
+    .setCustomId(`application:apply:${type}`)
+    .setTitle(`ORGVNUM — ${type}`.slice(0, 45))
+    .addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder().setCustomId('discord_username').setLabel('Discord Username').setPlaceholder('Your Discord username').setStyle(TextInputStyle.Short).setRequired(true),
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder().setCustomId('age').setLabel('Age').setPlaceholder('Your age').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(3),
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder().setCustomId('timezone').setLabel('Timezone').setPlaceholder('Your timezone (e.g. EST)').setStyle(TextInputStyle.Short).setRequired(true),
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder().setCustomId('experience').setLabel('Previous Experience').setPlaceholder('Describe your prior experience').setStyle(TextInputStyle.Paragraph).setRequired(false),
+      ),
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder().setCustomId('why_join').setLabel('Why ORGVNUM?').setPlaceholder('Why do you want to join ORGVNUM?').setStyle(TextInputStyle.Paragraph).setRequired(false),
+      ),
+    );
+  await interaction.showModal(modal);
 });
 
 export default {
