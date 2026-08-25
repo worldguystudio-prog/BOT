@@ -179,12 +179,14 @@ export default {
     }
 
     // ─── Grouped subcommands ────────────────────────
+
+    // Handle departments specially FIRST — they're not a setting, they're
+    // a separate table, so resolveSettingKey returns null for them.
+    if (subcommandGroup === 'departments') return handleDepartments(interaction, subcommand);
+
     // Resolve the setting key from the group + subcommand.
     const key = resolveSettingKey(subcommandGroup, subcommand);
     if (!key) return interaction.reply({ embeds: [errorEmbed('Unknown configuration option.')], ephemeral: true });
-
-    // Handle departments specially.
-    if (subcommandGroup === 'departments') return handleDepartments(interaction, subcommand);
 
     // Gather the value from whichever option type is present.
     const channel = interaction.options.getChannel('channel') || interaction.options.getChannel('category');

@@ -158,7 +158,7 @@ function buildPermissionsView(guildId, settings) {
         const name = PERMISSION_LEVELS.find((p) => p.value === String(lvl))?.label || String(lvl);
         return `• <@&${rid}> → **${name}** (${lvl})`;
       })
-    : '— no role mappings set —';
+    : ['— no role mappings set —'];
   const embed = brandedEmbed(
     `🔐 **Permission Roles**\n\n${lines.join('\n')}\n\nMap Discord roles to ORGVNUM permission levels below.`,
     'ORGVNUM — Dashboard',
