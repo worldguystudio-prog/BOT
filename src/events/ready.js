@@ -1,6 +1,6 @@
-import { Events } from 'discord.js';
+import { Events, Routes } from 'discord.js';
 import { config } from '../config/config.js';
-import { restPutCommands } from '../utils/register.js';
+import { restPutCommands, rest } from '../utils/register.js';
 import logger from '../utils/logger.js';
 
 export default {
@@ -25,6 +25,18 @@ export default {
       const commands = await loadCommands();
       client.commands = commands;
       if (clientId) {
+        // If GUILD_ID is set, we register guild-only. To prevent duplicate
+        // commands (from a previous both-scope registration), proactively
+        // clear ALL global commands on every startup. This is idempotent and
+        // cheap, and guarantees no duplicates ever persist.
+        if (config.guildId) {
+          try {
+            await rest.put(Routes.applicationCommands(clientId), { body: [] });
+            logger.info('Cleared global commands (preventing duplicates).');
+          } catch (e) {
+            logger.warn(`Could not clear global commands: ${e.message}`);
+          }
+        }
         await restPutCommands([...commands.values()], clientId);
         logger.info(`Slash commands registered (guild=${config.guildId || 'none'}, global).`);
       }
