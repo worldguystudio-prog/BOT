@@ -242,6 +242,10 @@ registerSelect('dash', async (interaction, _client, action, id) => {
     await interaction.followUp({ embeds: [successEmbed('Role mapped.')], ephemeral: true }).catch(() => {});
     return;
   }
+
+  // Fallback — unknown action. Reply so Discord doesn't show "interaction failed".
+  logger.warn(`Unhandled dashboard select action: ${action}`);
+  await interaction.reply({ embeds: [errorEmbed('Unknown dashboard action. Please reopen /dashboard.')], ephemeral: true }).catch(() => {});
 });
 
 // Buttons — back navigation, bool toggles, modal triggers.
@@ -292,6 +296,10 @@ registerButton('dash', async (interaction, _client, action, id) => {
     await interaction.showModal(modal);
     return;
   }
+
+  // Fallback — unknown button action.
+  logger.warn(`Unhandled dashboard button action: ${action}`);
+  await interaction.reply({ embeds: [errorEmbed('Unknown dashboard action. Please reopen /dashboard.')], ephemeral: true }).catch(() => {});
 });
 
 // Modal submit — save text/int settings.

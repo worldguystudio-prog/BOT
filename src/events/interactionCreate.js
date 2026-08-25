@@ -21,7 +21,9 @@ export default {
         await handleAutocomplete(client, interaction);
       } else if (interaction.isButton()) {
         await handleButton(client, interaction);
-      } else if (interaction.isStringSelectMenu()) {
+      } else if (interaction.isSelectMenu()) {
+        // isSelectMenu() catches ALL select types: string, channel, role,
+        // user, and mentionable. (isStringSelectMenu() only catches string.)
         await handleSelectMenu(client, interaction);
       } else if (interaction.isModalSubmit()) {
         await handleModal(client, interaction);
