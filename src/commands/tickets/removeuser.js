@@ -14,7 +14,7 @@ export default {
     const user = interaction.options.getUser('user', true);
     try {
       await interaction.channel.permissionOverwrites.edit(user.id, { ViewChannel: false });
-      await interaction.reply({ embeds: [successEmbed(`<@${user.id}> has been removed from this ticket.`)] });
+      await interaction.reply({ embeds: [successEmbed(`<@${user.id}> has been removed from this ticket.`)], ephemeral: true });
     } catch (e) {
       await interaction.reply({ embeds: [errorEmbed(`Could not remove user: ${e.message}`)], ephemeral: true });
     }

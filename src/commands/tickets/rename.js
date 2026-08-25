@@ -14,7 +14,7 @@ export default {
     const name = interaction.options.getString('name', true).toLowerCase().replace(/\s+/g, '-').slice(0, 90);
     try {
       await interaction.channel.setName(name);
-      await interaction.reply({ embeds: [successEmbed(`Ticket renamed to \`${name}\`.`)] });
+      await interaction.reply({ embeds: [successEmbed(`Ticket renamed to \`${name}\`.`)], ephemeral: true });
     } catch (e) {
       await interaction.reply({ embeds: [errorEmbed(`Could not rename: ${e.message}`)], ephemeral: true });
     }

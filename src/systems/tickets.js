@@ -231,7 +231,7 @@ registerButton('ticket', async (interaction, client, action, id) => {
   if (action === 'claim') {
     if (!ticket) return interaction.reply({ embeds: [errorEmbed('Ticket not found.')], ephemeral: true });
     run('UPDATE tickets SET claimed_by = ? WHERE id = ?', [interaction.user.id, ticket.id]);
-    await interaction.reply({ embeds: [successEmbed(`This ticket has been claimed by <@${interaction.user.id}>.`, '🎫 Ticket Claimed')] });
+    await interaction.reply({ embeds: [successEmbed(`This ticket has been claimed by <@${interaction.user.id}>.`, '🎫 Ticket Claimed')], ephemeral: true });
     return;
   }
 
@@ -241,7 +241,7 @@ registerButton('ticket', async (interaction, client, action, id) => {
     if (opener) {
       await channel.permissionOverwrites.edit(opener, { SendMessages: false }).catch(() => {});
     }
-    await interaction.reply({ embeds: [successEmbed('Ticket locked. The requester can no longer send messages here.')] });
+    await interaction.reply({ embeds: [successEmbed('Ticket locked. The requester can no longer send messages here.')], ephemeral: true });
     return;
   }
 
@@ -251,7 +251,7 @@ registerButton('ticket', async (interaction, client, action, id) => {
     if (opener) {
       await channel.permissionOverwrites.edit(opener, { SendMessages: true }).catch(() => {});
     }
-    await interaction.reply({ embeds: [successEmbed('Ticket unlocked.')] });
+    await interaction.reply({ embeds: [successEmbed('Ticket unlocked.')], ephemeral: true });
     return;
   }
 
@@ -274,7 +274,7 @@ registerButton('ticket', async (interaction, client, action, id) => {
   }
 
   if (action === 'close') {
-    await interaction.deferReply({ ephemeral: false });
+    await interaction.deferReply({ ephemeral: true });
     await interaction.editReply({ embeds: [brandedEmbed('Closing ticket and generating transcript…')] });
     const ok = await closeTicket(interaction.guild, interaction.channel, interaction.user.id).catch((e) => {
       logger.error(`closeTicket failed: ${e.message}`);
@@ -292,7 +292,7 @@ registerModal('ticket', async (interaction, client, action, id) => {
   if (action === 'rename') {
     const name = interaction.fields.getTextInputValue('name').toLowerCase().replace(/\s+/g, '-').slice(0, 90);
     await interaction.channel.setName(name).catch(() => {});
-    await interaction.reply({ embeds: [successEmbed(`Ticket renamed to \`${name}\`.`)] });
+    await interaction.reply({ embeds: [successEmbed(`Ticket renamed to \`${name}\`.`)], ephemeral: true });
     return;
   }
 });

@@ -13,6 +13,6 @@ export default {
     const ticket = get('SELECT * FROM tickets WHERE channel_id = ?', [interaction.channelId]);
     if (!ticket) return interaction.reply({ embeds: [errorEmbed('This channel is not a ticket.')], ephemeral: true });
     run('UPDATE tickets SET claimed_by = NULL WHERE id = ?', [ticket.id]);
-    await interaction.reply({ embeds: [successEmbed('Ticket claim released.')] });
+    await interaction.reply({ embeds: [successEmbed('Ticket claim released.')], ephemeral: true });
   },
 };

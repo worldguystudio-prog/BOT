@@ -14,7 +14,7 @@ export default {
     const user = interaction.options.getUser('user', true);
     try {
       await interaction.channel.permissionOverwrites.edit(user.id, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-      await interaction.reply({ embeds: [successEmbed(`<@${user.id}> has been added to this ticket.`)] });
+      await interaction.reply({ embeds: [successEmbed(`<@${user.id}> has been added to this ticket.`)], ephemeral: true });
     } catch (e) {
       await interaction.reply({ embeds: [errorEmbed(`Could not add user: ${e.message}`)], ephemeral: true });
     }

@@ -18,6 +18,6 @@ export default {
     const app = getApplication(interaction.guild.id, id);
     if (!app) return interaction.reply({ embeds: [errorEmbed(`Application #${id} not found.`)], ephemeral: true });
     updateApplicationStatus(interaction.guild, id, 'DENIED', interaction.user.id, notes);
-    await interaction.reply({ embeds: [successEmbed(`Application #${id} **denied**.\nApplicant: <@${app.user_id}>`)] });
+    await interaction.reply({ embeds: [successEmbed(`Application #${id} **denied**.\nApplicant: <@${app.user_id}>`)], ephemeral: true });
   },
 };

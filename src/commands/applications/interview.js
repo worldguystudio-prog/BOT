@@ -16,6 +16,6 @@ export default {
     const app = getApplication(interaction.guild.id, id);
     if (!app) return interaction.reply({ embeds: [errorEmbed(`Application #${id} not found.`)], ephemeral: true });
     updateApplicationStatus(interaction.guild, id, 'INTERVIEW', interaction.user.id);
-    await interaction.reply({ embeds: [successEmbed(`Application #${id} moved to **INTERVIEW**.\nApplicant: <@${app.user_id}>`)] });
+    await interaction.reply({ embeds: [successEmbed(`Application #${id} moved to **INTERVIEW**.\nApplicant: <@${app.user_id}>`)], ephemeral: true });
   },
 };

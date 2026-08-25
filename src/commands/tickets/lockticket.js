@@ -15,7 +15,7 @@ export default {
     if (!ticket) return interaction.reply({ embeds: [errorEmbed('This channel is not a ticket.')], ephemeral: true });
     try {
       await interaction.channel.permissionOverwrites.edit(ticket.user_id, { SendMessages: false });
-      await interaction.reply({ embeds: [successEmbed('Ticket locked. The requester can no longer send messages here.')] });
+      await interaction.reply({ embeds: [successEmbed('Ticket locked. The requester can no longer send messages here.')], ephemeral: true });
     } catch (e) {
       await interaction.reply({ embeds: [errorEmbed(`Could not lock: ${e.message}`)], ephemeral: true });
     }

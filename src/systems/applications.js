@@ -132,6 +132,7 @@ registerModal('application', async (interaction, client, action, type) => {
   });
   await interaction.reply({
     embeds: [successEmbed(`Your application has been submitted.\n\nApplication ID: **#${applicationId}**\nStatus: **${STATUSES.PENDING}**\n\nA reviewer will respond in due course.`)],
+    ephemeral: true,
   });
 
   // Post review panel to configured application channel.

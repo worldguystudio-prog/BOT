@@ -77,7 +77,7 @@ export default {
       const id = interaction.options.getString('id', true);
       const row = removeFromWaitlist(interaction.guild.id, id);
       if (!row) return interaction.reply({ embeds: [errorEmbed('Waitlist entry not found.')], ephemeral: true });
-      return interaction.reply({ embeds: [successEmbed(`Removed waitlist entry #${row.id} for <@${row.user_id}>.`)] });
+      return interaction.reply({ embeds: [successEmbed(`Removed waitlist entry #${row.id} for <@${row.user_id}>.`)], ephemeral: true });
     }
 
     if (sub === 'view') {
@@ -96,7 +96,7 @@ export default {
       const id = interaction.options.getString('id', true);
       const entry = promoteWaitlist(interaction.guild, id, interaction.user.id);
       if (!entry) return interaction.reply({ embeds: [errorEmbed('Entry not found.')], ephemeral: true });
-      return interaction.reply({ embeds: [successEmbed(`Promoted waitlist entry #${entry.id} for <@${entry.user_id}>.`, 'ORGVNUM — Promoted')] });
+      return interaction.reply({ embeds: [successEmbed(`Promoted waitlist entry #${entry.id} for <@${entry.user_id}>.`, 'ORGVNUM — Promoted')], ephemeral: true });
     }
 
     if (sub === 'status') {

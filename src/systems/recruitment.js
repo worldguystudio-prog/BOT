@@ -117,5 +117,6 @@ registerModal('waitlist', async (interaction, client, action) => {
   const id = addToWaitlist({ guildId: interaction.guild.id, userId: interaction.user.id, fields });
   await interaction.reply({
     embeds: [successEmbed(`Your placement waitlist submission was received.\n\nEntry ID: **#${String(id).padStart(4, '0')}**\nApplication Status: **PENDING REVIEW**\n\nStaff will review your submission. Do not message staff about the status unless requested.`)],
+    ephemeral: true,
   });
 });
