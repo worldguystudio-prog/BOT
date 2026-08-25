@@ -1,0 +1,508 @@
+===============================================================================
+                        ORGVNUM BOT — HOW TO USE
+            A plain-English guide for server owners and staff
+===============================================================================
+
+Hey! This guide walks you through everything the ORGVNUM bot can do, in
+plain English — no tech jargon, no code. Read it top to bottom the first
+time, then use it as a reference whenever you forget how something works.
+
+
+───────────────────────────────────────────────────────────────────────────────
+TABLE OF CONTENTS
+───────────────────────────────────────────────────────────────────────────────
+
+  1.  First-Time Setup (the 5-minute version)
+  2.  The Dashboard — configure everything in one place
+  3.  Moderation — warnings, mutes, kicks, bans, timeouts
+  4.  Auto Moderation — spam, caps, invites, raid protection
+  5.  Tickets — support panels, transcripts, claim/close
+  6.  Applications — recruitment, staff, leadership applications
+  7.  Placement Waitlist — the ORGVNUM placement queue
+  8.  Roleplay — personnel, callsigns, dispatch, scenes
+  9.  Training & Events — create, start, end, rosters
+  10. Shifts — start/end shifts, leaderboard
+  11. Points / Economy — balance, awards, leaderboard
+  12. Welcome & Leave messages
+  13. Making the bot talk — /say
+  14. Utilities — userinfo, serverinfo, ping, help
+  15. Owner-only commands — reload, sync, database, debug
+  16. Troubleshooting — when something doesn't work
+
+
+===============================================================================
+1. FIRST-TIME SETUP
+===============================================================================
+
+Before you do anything, make sure you've enabled these in the Discord
+Developer Portal (your bot's settings page):
+
+    ✅ Server Members Intent
+    ✅ Message Content Intent
+    ✅ Presence Intent
+
+Without these, some features just won't work and you'll see errors in the
+logs. Tick all three, save, and restart the bot.
+
+Once the bot is online in your server, run this one command:
+
+    /dashboard
+
+That opens an interactive panel where you can configure EVERYTHING —
+channels, roles, permissions — by clicking through menus. No need to
+memorize command syntax. The dashboard is your control room.
+
+If you prefer typing commands, /config does the same thing with
+subcommands like /config welcome channel #welcome.
+
+
+===============================================================================
+2. THE DASHBOARD
+===============================================================================
+
+/dashboard is the main control panel. Only Administrators can use it.
+
+When you run it, you get a dropdown with all the categories:
+
+    👋 Welcome System          Set welcome channel, default role, message
+    📋 Logging Channels        Where logs go (mod, members, tickets, apps)
+    🎫 Tickets                 Category, panel channel, transcripts, staff role
+    📝 Applications            Review channel, recruiter role
+    📋 Recruitment             Recruitment & waitlist channels
+    🎭 Roleplay                Dispatch, scene, RP log channels
+    💰 Economy                 Enable/disable points, display channel
+    ⏱️ Shifts                  Shift log channel
+    📅 Training                Training channel + log channel
+    🛡️ Staff Roles             Moderator, Directorate, Trainer, Muted roles
+    🏢 Departments             Add/remove roleplay departments
+    🔐 Permissions             Map Discord roles to permission levels
+
+Pick a category → pick a setting → pick the new value from a dropdown
+(or type it into a popup). That's it. Settings save instantly.
+
+The ← Back button always takes you one step back.
+
+
+===============================================================================
+3. MODERATION
+===============================================================================
+
+These commands keep your server in order. Most require Moderator or higher.
+
+WARNINGS (counter/history only — never auto-punishes)
+-----------------------------------------------------
+    /warn      user:@someone  reason:Disruptive behavior
+    /unwarn    warning_id:WARN-000123     (removes a single warning)
+    /warnings  user:@someone              (view their warning history)
+    /clearwarnings  user:@someone        (clears ALL their warnings)
+
+When you warn someone, three things happen automatically:
+  1. The warning is saved to the database permanently.
+  2. The user gets a DM telling them why, who issued it, and that they
+     can appeal via a ticket.
+  3. An audit log is posted to your moderation log channel.
+
+Warnings do NOT auto-kick or auto-ban. They're just a record. You decide
+what to do about repeat offenders.
+
+MUTES & TIMEOUTS
+-----------------
+    /mute      user:@someone reason:Spamming duration:10m
+    /unmute    user:@someone
+    /timeout   user:@someone duration:30m reason:Disruptive
+    /untimeout user:@someone
+
+/mute uses a "Muted" role (set it via /config roles muted @Muted).
+/timeout uses Discord's native timeout feature (no role needed, max 28 days).
+
+KICK / BAN / SOFTBAN
+---------------------
+    /kick     user:@someone reason:Rule violation
+    /ban      user:<id or mention> reason:Toxic behavior delete_days:7
+    /unban    user:<id> reason:Appeal approved
+    /softban  user:@someone reason:Cleanup
+
+/softban bans then immediately unbans — it clears the user's recent
+messages without permanently removing them from the server.
+
+PURGE & SLOWMODE
+----------------
+    /purge    amount:50                       (delete 50 recent messages)
+    /purge    amount:50 user:@spammer         (delete that user's messages)
+    /slowmode seconds:30                      (set channel slowmode)
+
+LOCKS
+------
+    /lock        Lock the current channel (members can't send messages)
+    /unlock      Unlock it again
+    /lockdown    Lock EVERY text channel (emergency use only)
+    /unlockdown  Restore all channels after a lockdown
+
+NICKNAMES & CASES
+------------------
+    /nickname  user:@someone nickname:NewNick
+    /case 000042                              (look up a moderation case)
+
+Every moderation action gets a unique case number (Case #000001, #000002,
+etc.) so you can always look up exactly what happened, when, and who did it.
+
+
+===============================================================================
+4. AUTO MODERATION
+===============================================================================
+
+Automod runs silently in the background. It's OFF by default — you have to
+turn it on. Configure it with /automod:
+
+    /automod enable                       (turn the whole system on)
+    /automod disable                      (turn it off)
+    /automod settings                     (view current config)
+    /automod settings module:Spam enabled:true
+
+Modules you can toggle individually:
+    Spam         — too many messages too fast
+    Mentions     — mass @pings
+    Caps         — excessive capital letters
+    Duplicate    — same message repeated
+    Links        — block links
+    Invites     — block Discord invite links
+    Keywords    — block specific words (add them in settings)
+    Flood        — message flooding
+    Raid        — detect join raids
+    Account Age — flag brand-new accounts
+
+Automod is calm by default. Staff (anyone with Manage Messages) are
+exempt. When automod acts on someone, it deletes their message(s),
+times them out for 60 seconds, and logs the action to your mod log.
+
+
+===============================================================================
+5. TICKETS
+===============================================================================
+
+Tickets are private channels where members get one-on-one help from staff.
+
+SETUP
+-----
+    /dashboard → Tickets → set the category, panel channel, staff role,
+    and where transcripts go.
+
+POST THE PANEL
+--------------
+    /ticket-panel channel:#support
+
+This posts a dropdown menu users click to pick a ticket type:
+
+    General Support, Moderation Appeal, Recruitment, Placement Application,
+    Staff Application, Partnership, Report a User, Roleplay Support, Other
+
+When someone opens a ticket:
+  - A private channel is created under your ticket category
+  - Staff roles get access
+  - The user gets a welcome embed with Claim / Close / Lock / Rename buttons
+
+MANAGING TICKETS
+----------------
+    /claim              (you take ownership of the ticket)
+    /unclaim            (release your claim)
+    /adduser user:@someone
+    /removeuser user:@someone
+    /rename name:new-ticket-name
+    /lockticket         (stop the requester from sending messages)
+    /unlockticket
+    /closeticket        (generate transcript, post to transcript channel,
+                         delete the ticket channel)
+
+The Close button on the ticket message does the same thing as /closeticket.
+
+
+===============================================================================
+6. APPLICATIONS
+===============================================================================
+
+For recruiting new members or staff.
+
+POST AN APPLICATION PANEL
+-------------------------
+    /application-panel channel:#applications
+
+Posts a branded panel with buttons:
+
+    [ Recruitment ] [ Placement ] [ Staff ] [ Leadership ]
+
+Users click a button → a form pops up (Discord username, age, timezone,
+experience, why ORGVNUM). On submit:
+  - Application saved to the database with a unique ID (#0001, #0002...)
+  - A review panel is posted to your configured application review channel
+  - The applicant gets a confirmation with their application ID
+
+REVIEWING APPLICATIONS
+-----------------------
+Set up your application review channel first:
+    /dashboard → Applications → Application Review Channel → #app-review
+
+Then staff can use:
+    /applications                 (list recent applications)
+    /applications status:PENDING   (filter by status)
+    /application id:0042          (view one application + review buttons)
+
+Each application review panel has buttons:
+    [ Accept ] [ Deny ] [ Waitlist ] [ Interview ] [ Request Info ]
+
+Or use the commands:
+    /accept id:0042 notes:Great fit
+    /deny id:0042 notes:Not enough experience
+    /interview id:0042
+
+Applicants get a DM when their status changes.
+
+Application statuses: PENDING → UNDER REVIEW → INTERVIEW → ACCEPTED /
+DENIED / WAITLISTED / CLOSED.
+
+
+===============================================================================
+7. PLACEMENT WAITLIST
+===============================================================================
+
+A dedicated queue for ORGVNUM placement. Members submit:
+
+    Roblox username, Discord username, age, timezone, activity level,
+    previous experience, why they want to join, desired role, skills,
+    availability.
+
+TO JOIN THE WAITLIST
+--------------------
+    /waitlist add
+
+(Opens a form — staff can also use this to add someone manually.)
+
+STAFF MANAGEMENT
+----------------
+    /waitlist view                    (list all entries)
+    /waitlist view status:PENDING REVIEW
+    /waitlist status user:@someone    (view one person's entry)
+    /waitlist promote id:5            (promote an entry)
+    /waitlist remove id:5             (remove an entry)
+
+Statuses: PENDING REVIEW → PROMOTED / REJECTED / CLOSED.
+
+We never auto-accept anyone — staff review and decide.
+
+
+===============================================================================
+8. ROLEPLAY
+===============================================================================
+
+PERSONNEL FILES
+---------------
+    /profile user:@someone    (view their ORGVNUM personnel file)
+    /personnel user:@someone   (staff view)
+    /status set:Active         (set your own status: Active/On Leave/LOA/etc.)
+
+CALLSIGNS
+--------
+    /callsign set user:@someone callsign:ORV-04 department:Operations
+    /callsign remove user:@someone
+
+DEPARTMENTS
+-----------
+Configure them via /dashboard → Departments, or:
+    /config departments add name:Operations role:@Operations
+    /config departments list
+    /config departments remove name:Operations
+
+ROLEPLAY COMMANDS
+-----------------
+    /scene name:Bank Heist description:"Armed robbery in progress" participants:@user1 @user2
+    /dispatch location:Sector 04 situation:Unauthorized activity units:Alpha Squad
+    /alert message:All units stand down level:warning
+    /announcement title:Weekly Brief body:New protocols in effect Monday.
+
+/alert pings @here (info/warning/danger levels change the embed color).
+/announcement pings @everyone by default — set mention_everyone:false to skip.
+
+
+===============================================================================
+9. TRAINING & EVENTS
+===============================================================================
+
+Create and track training sessions, operations, patrols, ceremonies,
+interviews, and recruitment events.
+
+    /training create name:Basic Training type:Training date:"tomorrow 8pm"
+    /training start id:1
+    /training end id:1
+    /training cancel id:1
+    /training roster id:1                    (view attendance)
+    /training roster id:1 user:@someone       (mark someone as attended)
+
+Event types: Training, Operation, Patrol, Ceremony, Interview, Recruitment Event.
+
+
+===============================================================================
+10. SHIFTS
+===============================================================================
+
+Track staff activity with shift start/end times.
+
+    /shift start department:Operations
+    /shift end
+    /shift status
+    /shift leaderboard
+
+Leaderboard shows total time per staff member. Use /leaderboard type:shifts
+as an alias.
+
+
+===============================================================================
+11. POINTS / ECONOMY
+===============================================================================
+
+Optional internal points system. OFF by default — enable it:
+
+    /dashboard → Economy → Economy Enabled → Enable
+    (or /config economy enable enabled:true)
+
+    /balance                (view your points)
+    /balance user:@someone
+    /points user:@someone amount:50 reason:Training attended
+    /leaderboard            (points leaderboard)
+    /leaderboard type:shifts
+
+No gambling. Points are awarded manually by staff for training, events,
+RP activities, attendance, and contributions.
+
+
+===============================================================================
+12. WELCOME & LEAVE MESSAGES
+===============================================================================
+
+Configure via /dashboard → Welcome System:
+
+    Welcome Channel     — where welcome messages go
+    Leave Channel       — where leave logs go
+    Welcome Message     — custom text (use {user} for the mention)
+    Default Role        — auto-assigned to everyone who joins
+
+When someone joins, they get a branded welcome embed. When someone leaves,
+a log entry is posted with their join date, roles, and departments.
+
+
+===============================================================================
+13. MAKING THE BOT TALK — /say
+===============================================================================
+
+Make the bot post a message in any channel. Administrator only.
+
+PLAIN TEXT:
+    /say channel:#general message:Hey everyone, check the rules!
+
+BRANDED EMBED:
+    /say channel:#announcements embed_title:Server Update embed_description:Maintenance tonight at 10pm EST.
+
+BOTH:
+    /say channel:#general message:@everyone embed_title:Important embed_description:Read above.
+
+You need Manage Messages permission in the target channel, and the bot
+needs Send Messages + Embed Links there too.
+
+
+===============================================================================
+14. UTILITIES
+===============================================================================
+
+    /avatar          — view your avatar (or someone else's)
+    /banner          — view a banner
+    /userinfo        — member info (join date, roles, permissions)
+    /serverinfo      — server stats
+    /roleinfo role:@Staff — role details
+    /ping            — bot latency
+    /botinfo         — bot version, uptime, memory, server count
+    /help            — interactive command browser with category dropdown
+
+
+===============================================================================
+15. OWNER-ONLY COMMANDS
+===============================================================================
+
+Only the configured OWNER_ID (and CO_OWNERS) can use these.
+
+    /reload     — reload all commands without restarting the bot
+    /sync       — re-register slash commands + clear duplicates
+    /database stats    — row counts for every table
+    /database backup   — create a timestamped .db backup
+    /database vacuum   — optimize the database
+    /debug      — diagnostic info (uptime, memory, log types, etc.)
+
+
+===============================================================================
+16. TROUBLESHOOTING
+===============================================================================
+
+"Slash commands aren't showing up"
+    → Run /sync (owner only). If that doesn't work, fully close and
+      reopen Discord to clear the command cache. Guild commands appear
+      within seconds; global ones can take up to an hour.
+
+"Bot says I don't have permission"
+    → Your Discord role isn't mapped to a high enough ORGVNUM permission
+      level. Use /dashboard → Permissions to map your role to
+      "Administrator" or "Owner".
+
+"This interaction failed" (red error on a button/select)
+    → Usually means the bot restarted and lost track of the component.
+      Re-run the command that created the panel/button.
+
+"Could not locate the bindings file" (better-sqlite3 error)
+    → You're on the wrong Node version. Use Node 20 or 22.
+      (Railway uses Node 22+ by default — you should be fine there.)
+
+"Missing Permissions" when the bot tries to moderate
+    → The bot's role needs to be ABOVE the role of the person it's
+      acting on. Go to Server Settings → Roles and drag the bot's role up.
+
+Logs aren't appearing in the log channel
+    → You haven't set the log channel. Run /dashboard → Logging Channels
+      → Main Moderation Log → pick a channel.
+
+Duplicate slash commands
+    → Run /sync. The bot now auto-clears global commands on startup
+      when GUILD_ID is set, so duplicates disappear after a restart.
+
+Database wiped after redeploy
+    → You're on Railway without a persistent volume. Add a volume
+      mounted at /app/data so the SQLite file survives restarts.
+
+Bot crashes on startup
+    → Check the logs. Most common cause is a missing or invalid
+      DISCORD_TOKEN. Make sure your .env (or Railway variables) has
+      DISCORD_TOKEN, GUILD_ID, and OWNER_ID set correctly.
+
+Still stuck?
+    → Paste the exact error from the logs and ask for help. The bot
+      logs everything to the console and to logs/bot.log.
+
+
+===============================================================================
+QUICK REFERENCE — the commands you'll use most
+===============================================================================
+
+    /dashboard              configure everything
+    /sync                   fix command registration
+    /ticket-panel          post the support ticket panel
+    /application-panel     post the application buttons
+    /warn                  warn someone
+    /warnings              check someone's history
+    /case 000123           look up a moderation case
+    /help                  browse all commands interactively
+    /say                   make the bot post a message
+    /ping                  is the bot alive?
+
+
+===============================================================================
+That's the whole bot. If something's broken, check the logs first — they
+tell you exactly what went wrong. If you're still stuck, paste the error
+message and someone can help you fix it.
+
+Welcome to ORGVNUM. Run a tight ship. 🛡️
+===============================================================================
