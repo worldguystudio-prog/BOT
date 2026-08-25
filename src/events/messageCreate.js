@@ -18,10 +18,15 @@ export default {
 
     // ─── DM messages → application system ───────────
     if (!message.guild) {
+      // Debug log so we can confirm DMs are being received.
+      logger.info(`DM received from ${message.author.id}: "${message.content?.slice(0, 50) || '(no text)'}"`);
       try {
         const { getSession } = await import('../systems/dm-applications.js');
         const session = getSession(message.author.id);
-        if (!session) return; // not in an application session — ignore
+        if (!session) {
+          logger.debug(`DM from ${message.author.id} but no active application session — ignoring.`);
+          return; // not in an application session — ignore
+        }
 
         // Check for cancel command.
         if (message.content?.trim().toLowerCase() === 'cancel') {

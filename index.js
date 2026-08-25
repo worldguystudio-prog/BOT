@@ -32,6 +32,7 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildBans,
     GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.DirectMessages, // Required to receive DMs (for the DM application system)
   ],
   partials: [
     Partials.Channel,
