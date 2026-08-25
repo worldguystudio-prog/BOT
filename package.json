@@ -1,0 +1,32 @@
+{
+  "name": "orgvnum-bot",
+  "version": "1.0.0",
+  "description": "ORGVNUM — All-in-one Discord bot for moderation, administration, recruitment, tickets, applications, personnel, roleplay, training, events, logging, and utilities.",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "orgvnum",
+    "moderation",
+    "roleplay",
+    "recruitment"
+  ],
+  "license": "MIT",
+  "allowScripts": {
+    "better-sqlite3@11.10.0": true
+  }
+}
