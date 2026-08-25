@@ -9,6 +9,7 @@ import { buttonHandlers, selectHandlers, modalHandlers } from '../registry.js';
 import '../systems/tickets.js';
 import '../systems/applications.js';
 import '../systems/recruitment.js';
+import '../systems/dashboard.js';
 
 export default {
   name: Events.InteractionCreate,
