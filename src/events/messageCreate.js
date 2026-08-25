@@ -28,6 +28,15 @@ export default {
           return; // not in an application session — ignore
         }
 
+        // Deduplication guard: if we've already processed this exact message
+        // ID, skip it. This prevents double-incrementing when the event fires
+        // twice (e.g. on reconnect or partial message delivery).
+        if (session.lastMessageId === message.id) {
+          logger.debug(`Duplicate message ${message.id} from ${message.author.id} — skipping.`);
+          return;
+        }
+        session.lastMessageId = message.id;
+
         // Check for cancel command.
         if (message.content?.trim().toLowerCase() === 'cancel') {
           const { clearSession } = await import('../systems/dm-applications.js');

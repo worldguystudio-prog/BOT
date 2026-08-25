@@ -63,6 +63,8 @@ export async function loadEvents(client) {
     return;
   }
   let count = 0;
+  // Track which events we've already registered to prevent duplicates.
+  const registered = new Set();
   for (const entry of entries) {
     if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
     try {
@@ -70,6 +72,12 @@ export async function loadEvents(client) {
       const mod = await import(`file://${fullPath}`);
       const evt = mod.default || mod;
       if (!evt?.name) continue;
+      // Prevent duplicate registration (in case loadEvents is called twice).
+      if (registered.has(evt.name)) {
+        logger.debug(`Event ${evt.name} already registered — skipping duplicate.`);
+        continue;
+      }
+      registered.add(evt.name);
       if (evt.once) {
         client.once(evt.name, (...args) => evt.execute(client, ...args));
       } else {
